@@ -238,6 +238,14 @@ export default function Inventory({ items, setItems }: InventoryProps) {
 
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Check for unique SKU
+    const isDuplicate = items.some(item => item.sku === formData.sku && item.id !== editingItem?.id);
+    if (isDuplicate) {
+      customSwal.fire('Error', 'SKU sudah digunakan oleh barang lain! Silakan gunakan SKU yang unik.', 'error');
+      return;
+    }
+
     const status = formData.stock === 0 ? 'Habis' : (formData.stock <= 5 ? 'Stok Menipis' : 'Tersedia');
     
     if (editingItem) {
