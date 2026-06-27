@@ -8,55 +8,60 @@ interface RepairsProps {
 
 export default function Repairs({ repairs }: RepairsProps) {
   return (
-    <div className="h-full flex flex-col space-y-4">
-      <div className="flex justify-between items-center">
-        <h2 className="text-xl font-bold text-gray-900">Perbaikan Barang</h2>
-        <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2">
-          <Plus size={16} />
+    <div className="h-full flex flex-col space-y-6 relative">
+      <div className="flex justify-between items-end">
+        <div>
+          <h2 className="text-3xl font-display font-bold text-white uppercase tracking-wider text-gradient">Perbaikan Barang</h2>
+          <p className="text-sm font-mono font-medium text-slate-400 mt-2 uppercase tracking-wider">Kelola tiket perbaikan aset</p>
+        </div>
+        <button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white px-6 py-2.5 font-bold font-mono text-sm uppercase transition-all shadow-[0_0_20px_rgba(139,92,246,0.3)] hover:shadow-[0_0_30px_rgba(139,92,246,0.5)] flex items-center gap-2 rounded-xl border border-white/10">
+          <Plus size={18} />
           Catat Perbaikan
         </button>
       </div>
 
-      <div className="bg-white border border-gray-200 rounded-lg flex-1 overflow-hidden">
-        <table className="w-full text-left text-sm">
-          <thead className="bg-gray-50 border-b border-gray-200">
-            <tr>
-              <th className="py-3 px-4 font-medium text-gray-700">Nama Barang</th>
-              <th className="py-3 px-4 font-medium text-gray-700">Masalah</th>
-              <th className="py-3 px-4 font-medium text-gray-700">Tanggal</th>
-              <th className="py-3 px-4 font-medium text-gray-700">Status</th>
-              <th className="py-3 px-4 font-medium text-gray-700 text-right">Aksi</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200">
-            {repairs.map(repair => (
-              <tr key={repair.id} className="hover:bg-gray-50">
-                <td className="py-3 px-4 font-medium text-gray-900">{repair.itemName}</td>
-                <td className="py-3 px-4 text-gray-600">{repair.description}</td>
-                <td className="py-3 px-4 text-gray-500">{new Date(repair.dateReported).toLocaleDateString('id-ID')}</td>
-                <td className="py-3 px-4">
-                  <span className={`px-2 py-1 rounded text-xs font-medium ${
-                    repair.status === 'Selesai' ? 'bg-green-100 text-green-700' :
-                    repair.status === 'Dikerjakan' ? 'bg-blue-100 text-blue-700' :
-                    'bg-yellow-100 text-yellow-700'
-                  }`}>
-                    {repair.status}
-                  </span>
-                </td>
-                <td className="py-3 px-4 text-right">
-                  <button className="text-blue-600 hover:text-blue-800 font-medium">Update</button>
-                </td>
-              </tr>
-            ))}
-            {repairs.length === 0 && (
+      <div className="glass-panel rounded-2xl flex-1 flex flex-col overflow-hidden">
+        <div className="flex-1 overflow-auto">
+          <table className="w-full text-left text-sm border-collapse">
+            <thead className="bg-white/5 sticky top-0 border-b border-white/10 z-10 backdrop-blur-md">
               <tr>
-                <td colSpan={5} className="py-8 text-center text-gray-500">
-                  Tidak ada data perbaikan.
-                </td>
+                <th className="py-4 px-6 font-mono font-medium text-slate-400 uppercase tracking-wider text-xs">Nama Barang</th>
+                <th className="py-4 px-6 font-mono font-medium text-slate-400 uppercase tracking-wider text-xs">Masalah</th>
+                <th className="py-4 px-6 font-mono font-medium text-slate-400 uppercase tracking-wider text-xs">Tanggal</th>
+                <th className="py-4 px-6 font-mono font-medium text-slate-400 uppercase tracking-wider text-xs">Status</th>
+                <th className="py-4 px-6 font-mono font-medium text-slate-400 uppercase tracking-wider text-xs text-right">Aksi</th>
               </tr>
-            )}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-white/5">
+              {repairs.map(repair => (
+                <tr key={repair.id} className="hover:bg-white/[0.02] transition-colors group">
+                  <td className="py-4 px-6 font-medium text-slate-200">{repair.itemName}</td>
+                  <td className="py-4 px-6 text-slate-400">{repair.description}</td>
+                  <td className="py-4 px-6 font-mono text-slate-500">{new Date(repair.dateReported).toLocaleDateString('id-ID')}</td>
+                  <td className="py-4 px-6">
+                    <span className={`px-3 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider ${
+                      repair.status === 'Selesai' ? 'bg-emerald-500/20 text-emerald-300' :
+                      repair.status === 'Dikerjakan' ? 'bg-blue-500/20 text-blue-300' :
+                      'bg-orange-500/20 text-orange-300'
+                    }`}>
+                      {repair.status}
+                    </span>
+                  </td>
+                  <td className="py-4 px-6 text-right opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button className="text-blue-400 hover:text-blue-300 font-mono font-bold text-xs uppercase transition-colors">Update</button>
+                  </td>
+                </tr>
+              ))}
+              {repairs.length === 0 && (
+                <tr>
+                  <td colSpan={5} className="py-16 text-center">
+                    <p className="font-mono font-medium text-slate-500 uppercase tracking-wider text-sm">Tidak ada data perbaikan</p>
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

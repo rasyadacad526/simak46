@@ -16,7 +16,8 @@ export default function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
   ];
 
   return (
-    <nav className="w-64 bg-white border-r border-gray-200 p-4 flex flex-col gap-2">
+    <nav className="w-64 glass-panel border-r border-t-0 border-b-0 border-white/10 p-6 flex flex-col gap-2 z-10">
+      <div className="text-xs font-mono font-medium text-slate-500 mb-4 uppercase tracking-widest pl-2">Menu Navigasi</div>
       {menuItems.map((item) => {
         const Icon = item.icon;
         const isActive = activeTab === item.id;
@@ -24,14 +25,14 @@ export default function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
           <button
             key={item.id}
             onClick={() => setActiveTab(item.id)}
-            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-md transition-colors ${
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
               isActive 
-                ? 'bg-blue-50 text-blue-700 font-medium' 
-                : 'hover:bg-gray-50 text-gray-600'
+                ? 'bg-gradient-to-r from-blue-500/20 to-purple-500/20 border border-white/10 font-bold text-white shadow-[0_0_15px_rgba(139,92,246,0.15)]' 
+                : 'bg-transparent border border-transparent font-medium text-slate-400 hover:text-slate-200 hover:bg-white/5'
             }`}
           >
-            <Icon size={18} className={isActive ? "text-blue-700" : "text-gray-400"} />
-            <span className="text-sm">{item.label}</span>
+            <Icon size={20} className={isActive ? "text-purple-400" : ""} />
+            <span className="text-sm font-display tracking-wide">{item.label}</span>
           </button>
         );
       })}

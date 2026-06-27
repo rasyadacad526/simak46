@@ -28,22 +28,23 @@ export default function App() {
   }
 
   return (
-    <div className="flex flex-col h-screen bg-gray-50 font-sans overflow-hidden">
-      <header className="h-14 flex items-center justify-between px-6 bg-white border-b border-gray-200 shrink-0">
-        <div className="flex items-center gap-2">
-          <div className="text-blue-600">
-             <Package size={24} />
+    <div className="flex flex-col h-screen bg-gradient-mesh font-sans overflow-hidden text-slate-200 selection:bg-purple-500/30 selection:text-white relative">
+      <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/10 via-transparent to-pink-500/10 pointer-events-none -z-10"></div>
+      <header className="h-16 flex items-center justify-between px-6 glass-panel shrink-0 z-20 border-b border-white/10 relative">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl shadow-[0_0_15px_rgba(139,92,246,0.5)]">
+             <Package size={20} className="text-white" />
           </div>
-          <h1 className="text-lg font-semibold text-gray-900">SIMAK 46</h1>
+          <h1 className="text-xl font-display font-bold uppercase tracking-wider text-gradient">SIMAK 46</h1>
         </div>
 
         <div className="flex items-center gap-4">
           <button 
             onClick={() => setAuthView('landing')}
-            className="flex items-center gap-2 text-gray-500 hover:text-gray-900 transition-colors"
+            className="flex items-center gap-2 bg-white/5 border border-white/10 px-4 py-2 hover:bg-red-500/20 hover:border-red-500/50 hover:text-red-300 transition-all font-mono text-sm font-medium rounded-full"
           >
-            <LogOut size={18} />
-            <span className="text-sm font-medium">Keluar</span>
+            <LogOut size={16} />
+            <span>Keluar</span>
           </button>
         </div>
       </header>
@@ -51,12 +52,14 @@ export default function App() {
       <div className="flex flex-1 overflow-hidden">
         <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
         
-        <main className="flex-1 overflow-y-auto p-6 bg-gray-50">
-          {activeTab === 'dashboard' && <Dashboard items={items} repairs={repairs} borrows={borrows} />}
-          {activeTab === 'inventory' && <Inventory items={items} setItems={setItems} />}
-          {activeTab === 'scanner' && <Scanner items={items} />}
-          {activeTab === 'repairs' && <Repairs repairs={repairs} />}
-          {activeTab === 'borrowing' && <Borrowing borrows={borrows} />}
+        <main className="flex-1 overflow-y-auto p-8 relative z-0">
+          <div className="max-w-6xl mx-auto relative">
+            {activeTab === 'dashboard' && <Dashboard items={items} repairs={repairs} borrows={borrows} />}
+            {activeTab === 'inventory' && <Inventory items={items} setItems={setItems} />}
+            {activeTab === 'scanner' && <Scanner items={items} />}
+            {activeTab === 'repairs' && <Repairs repairs={repairs} />}
+            {activeTab === 'borrowing' && <Borrowing borrows={borrows} />}
+          </div>
         </main>
       </div>
     </div>

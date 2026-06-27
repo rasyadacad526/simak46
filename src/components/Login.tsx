@@ -16,45 +16,47 @@ export default function Login({ onLogin, onBack }: LoginProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4 font-sans text-gray-900">
-      <div className="w-full max-w-md bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
-        <div className="p-6">
+    <div className="min-h-screen bg-gradient-mesh flex items-center justify-center p-4 font-sans text-slate-200 selection:bg-purple-500/30 selection:text-white relative">
+      <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/10 via-transparent to-purple-500/10 pointer-events-none"></div>
+      <div className="w-full max-w-md glass-panel rounded-3xl relative z-10 overflow-hidden">
+        <div className="p-8">
           <button 
             onClick={onBack}
-            className="text-gray-500 hover:text-gray-700 flex items-center gap-2 text-sm font-medium mb-6 transition-colors"
+            className="text-slate-400 hover:text-white flex items-center gap-2 text-sm font-mono mb-8 transition-colors"
           >
             <ArrowLeft size={16} />
-            Kembali
+            BACK
           </button>
 
-          <div className="flex flex-col items-center mb-8">
-            <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center mb-3">
-               <Package size={24} />
+          <div className="flex flex-col items-center mb-10 relative">
+            <div className="absolute inset-0 bg-purple-500/20 blur-[50px] rounded-full w-24 h-24 mx-auto -z-10"></div>
+            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl shadow-[0_0_20px_rgba(139,92,246,0.4)] flex items-center justify-center mb-6">
+               <Package size={32} className="text-white" />
             </div>
-            <h2 className="text-2xl font-bold text-gray-900">SIMAK 46</h2>
-            <p className="text-sm text-gray-500 mt-1">Masuk dengan akun admin</p>
+            <h2 className="text-3xl font-display font-bold text-white uppercase tracking-wider text-gradient">SIMAK 46</h2>
+            <p className="text-xs font-mono font-medium mt-2 text-slate-400 uppercase tracking-[0.2em]">Secure Access</p>
           </div>
 
-          <form onSubmit={handleLogin} className="space-y-4">
+          <form onSubmit={handleLogin} className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+              <label className="block text-xs font-mono font-medium text-slate-400 mb-2 uppercase tracking-wider">Email Operator</label>
               <input 
                 type="email"
                 required
-                placeholder="admin@contoh.com"
-                className="w-full px-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                placeholder="admin@smkn46.sch.id"
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 transition-all text-white placeholder-slate-500"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+              <label className="block text-xs font-mono font-medium text-slate-400 mb-2 uppercase tracking-wider">Passcode</label>
               <input 
                 type="password"
                 required
                 placeholder="••••••••"
-                className="w-full px-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 transition-all text-white placeholder-slate-500"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
@@ -62,9 +64,9 @@ export default function Login({ onLogin, onBack }: LoginProps) {
 
             <button 
               type="submit"
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-md font-medium text-sm mt-4 transition-colors"
+              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white py-4 rounded-xl font-display font-bold text-lg mt-8 transition-all shadow-[0_0_20px_rgba(139,92,246,0.4)] hover:shadow-[0_0_30px_rgba(139,92,246,0.6)] uppercase tracking-wider border border-white/10"
             >
-              Masuk
+              Authenticate
             </button>
           </form>
         </div>
