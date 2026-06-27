@@ -492,29 +492,27 @@ export default function Inventory({ items, setItems }: InventoryProps) {
         </div>
         
         {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="p-4 border-t border-white/10 bg-white/[0.02] flex items-center justify-between">
-            <p className="text-xs font-mono text-slate-400">
-              Menampilkan {((currentPage - 1) * itemsPerPage) + 1} - {Math.min(currentPage * itemsPerPage, filteredItems.length)} dari {filteredItems.length}
-            </p>
-            <div className="flex gap-2">
-              <button 
-                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                disabled={currentPage === 1}
-                className="p-2 rounded-lg border border-white/10 bg-white/5 text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white/10 transition-colors"
-              >
-                <ChevronLeft size={16} />
-              </button>
-              <button 
-                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                disabled={currentPage === totalPages}
-                className="p-2 rounded-lg border border-white/10 bg-white/5 text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white/10 transition-colors"
-              >
-                <ChevronRight size={16} />
-              </button>
-            </div>
+        <div className="p-4 border-t border-white/10 bg-white/[0.02] flex items-center justify-between">
+          <p className="text-xs font-mono text-slate-400">
+            Menampilkan {filteredItems.length === 0 ? 0 : ((currentPage - 1) * itemsPerPage) + 1} - {Math.min(currentPage * itemsPerPage, filteredItems.length)} dari {filteredItems.length}
+          </p>
+          <div className="flex gap-2">
+            <button 
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              className="p-2 rounded-lg border border-white/10 bg-white/5 text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white/10 transition-colors"
+            >
+              <ChevronLeft size={16} />
+            </button>
+            <button 
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages || totalPages === 0}
+              className="p-2 rounded-lg border border-white/10 bg-white/5 text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white/10 transition-colors"
+            >
+              <ChevronRight size={16} />
+            </button>
           </div>
-        )}
+        </div>
       </div>
 
       {/* Modal Add/Edit */}

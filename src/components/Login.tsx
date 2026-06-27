@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Package, ArrowLeft } from 'lucide-react';
+import { Package, ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { User } from '../types';
 import Swal from 'sweetalert2';
 
@@ -12,6 +12,7 @@ interface LoginProps {
 export default function Login({ onLogin, onBack, users }: LoginProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -71,14 +72,23 @@ export default function Login({ onLogin, onBack, users }: LoginProps) {
             
             <div>
               <label className="block text-xs font-mono font-medium text-slate-400 mb-2 uppercase tracking-wider">Passcode</label>
-              <input 
-                type="password"
-                required
-                placeholder="••••••••"
-                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 transition-all text-white placeholder-slate-500"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
+              <div className="relative">
+                <input 
+                  type={showPassword ? "text" : "password"}
+                  required
+                  placeholder="••••••••"
+                  className="w-full pl-4 pr-12 py-3 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 transition-all text-white placeholder-slate-500"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors"
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
             </div>
 
             <button 
