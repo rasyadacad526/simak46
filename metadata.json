@@ -1,0 +1,6 @@
+{
+  "name": "Sistem Inventaris",
+  "description": "Aplikasi web inventaris barang dengan pelacakan stok, perbaikan, dan peminjaman.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
