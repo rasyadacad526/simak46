@@ -1,18 +1,37 @@
 import React, { useState } from 'react';
 import { Package, ArrowLeft } from 'lucide-react';
+import { User } from '../types';
+import Swal from 'sweetalert2';
 
 interface LoginProps {
-  onLogin: () => void;
+  onLogin: (user: User) => void;
   onBack: () => void;
+  users: User[];
 }
 
-export default function Login({ onLogin, onBack }: LoginProps) {
+export default function Login({ onLogin, onBack, users }: LoginProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    onLogin();
+    const user = users.find(u => u.email === email && u.password === password);
+    if (user) {
+      onLogin(user);
+    } else {
+      Swal.fire({
+        icon: 'error',
+        title: 'Login Gagal',
+        text: 'Email atau password salah!',
+        customClass: {
+          popup: 'bg-[#1e1e2d] border border-white/10 rounded-2xl text-slate-200',
+          title: 'text-white font-display',
+          htmlContainer: 'text-slate-400',
+          confirmButton: 'bg-gradient-to-r from-red-600 to-pink-600 text-white px-6 py-2.5 rounded-xl font-bold border border-white/10',
+        },
+        buttonsStyling: false
+      });
+    }
   };
 
   return (

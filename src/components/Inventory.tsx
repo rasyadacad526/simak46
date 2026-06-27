@@ -1,5 +1,5 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { Plus, Search, ChevronLeft, ChevronRight, Trash2, Edit, X } from 'lucide-react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
+import { Plus, Search, ChevronLeft, ChevronRight, Trash2, Edit, X, Download, Upload } from 'lucide-react';
 import { Item } from '../types';
 import Swal from 'sweetalert2';
 
@@ -27,6 +27,7 @@ export default function Inventory({ items, setItems }: InventoryProps) {
   const [isCatModalOpen, setIsCatModalOpen] = useState(false);
   const [newCategory, setNewCategory] = useState('');
   const [categories, setCategories] = useState<string[]>(['Elektronik', 'Furnitur', 'Perangkat IT', 'Alat Tulis']);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const uniqueCats = new Set(items.map(i => i.category));
@@ -259,6 +260,105 @@ export default function Inventory({ items, setItems }: InventoryProps) {
     setIsModalOpen(false);
   };
 
+  const handleExport = () => {
+    const headers = ['SKU', 'Nama Barang', 'Kategori', 'Stok', 'Status', 'Last Updated'];
+    const csvContent = [
+      headers.join(','),
+      ...filteredItems.map(item => [
+        item.sku,
+        `"${item.name.replace(/"/g, '""')}"`,
+        `"${item.category}"`,
+        item.stock,
+        item.status,
+        item.lastUpdated
+      ].join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'katalog_barang.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const csvText = event.target?.result as string;
+        const lines = csvText.split('\n');
+        
+        const newItems: Item[] = [];
+
+        for (let i = 1; i < lines.length; i++) {
+          const line = lines[i].trim();
+          if (!line) continue;
+          
+          const regex = /(?:\"([^\"]*(?:\"\"[^\"]*)*)\"|([^,]+))/g;
+          let match;
+          const values: string[] = [];
+          
+          while ((match = regex.exec(line)) !== null) {
+            let val = match[1] || match[2] || '';
+            if (val) {
+              val = val.replace(/\"\"/g, '\"');
+            }
+            values.push(val);
+          }
+
+          if (values.length >= 4) {
+            const stock = parseInt(values[3], 10) || 0;
+            newItems.push({
+              id: Math.random().toString(36).substr(2, 9),
+              sku: values[0] || generateSKU(values[2] || ''),
+              name: values[1] || 'Unknown Item',
+              category: values[2] || 'Uncategorized',
+              stock,
+              status: stock === 0 ? 'Habis' : (stock <= 5 ? 'Stok Menipis' : 'Tersedia'),
+              lastUpdated: new Date().toISOString()
+            });
+          }
+        }
+
+        if (newItems.length > 0) {
+           customSwal.fire({
+             title: 'Import Data',
+             text: `Berhasil membaca ${newItems.length} barang dari file. Tambahkan ke data saat ini atau timpa semua data?`,
+             icon: 'question',
+             showDenyButton: true,
+             showCancelButton: true,
+             confirmButtonText: 'Tambahkan',
+             denyButtonText: 'Timpa Semua',
+             cancelButtonText: 'Batal',
+           }).then((result) => {
+             if (result.isConfirmed) {
+               setItems(prev => [...prev, ...newItems]);
+               successSwal.fire('Berhasil!', 'Data barang berhasil ditambahkan.', 'success');
+             } else if (result.isDenied) {
+               setItems(newItems);
+               successSwal.fire('Berhasil!', 'Data barang berhasil ditimpa.', 'success');
+             }
+           });
+        } else {
+          customSwal.fire('Gagal', 'Tidak ada data valid yang bisa diimport. Pastikan format CSV sesuai.', 'error');
+        }
+      } catch (error) {
+        customSwal.fire('Error', 'Terjadi kesalahan saat membaca file.', 'error');
+      }
+      
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    };
+    reader.readAsText(file);
+  };
+
   return (
     <div className="h-full flex flex-col space-y-6 relative">
       <div className="flex justify-between items-end">
@@ -266,13 +366,36 @@ export default function Inventory({ items, setItems }: InventoryProps) {
           <h2 className="text-3xl font-display font-bold text-white uppercase tracking-wider text-gradient">Katalog Barang</h2>
           <p className="text-sm font-mono font-medium text-slate-400 mt-2 uppercase tracking-wider">Kelola data inventaris</p>
         </div>
-        <button 
-          onClick={openAddModal}
-          className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white px-6 py-2.5 font-bold font-mono text-sm uppercase transition-all shadow-[0_0_20px_rgba(139,92,246,0.3)] hover:shadow-[0_0_30px_rgba(139,92,246,0.5)] flex items-center gap-2 rounded-xl border border-white/10"
-        >
-          <Plus size={18} />
-          Tambah Barang
-        </button>
+        <div className="flex items-center gap-3">
+          <input 
+            type="file" 
+            accept=".csv" 
+            ref={fileInputRef}
+            onChange={handleImport}
+            className="hidden"
+          />
+          <button 
+            onClick={() => fileInputRef.current?.click()}
+            className="bg-white/5 hover:bg-white/10 text-white px-4 py-2.5 font-bold font-mono text-sm uppercase transition-all flex items-center gap-2 rounded-xl border border-white/10"
+            title="Import CSV"
+          >
+            <Upload size={18} />
+          </button>
+          <button 
+            onClick={handleExport}
+            className="bg-white/5 hover:bg-white/10 text-white px-4 py-2.5 font-bold font-mono text-sm uppercase transition-all flex items-center gap-2 rounded-xl border border-white/10"
+            title="Export CSV"
+          >
+            <Download size={18} />
+          </button>
+          <button 
+            onClick={openAddModal}
+            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white px-6 py-2.5 font-bold font-mono text-sm uppercase transition-all shadow-[0_0_20px_rgba(139,92,246,0.3)] hover:shadow-[0_0_30px_rgba(139,92,246,0.5)] flex items-center gap-2 rounded-xl border border-white/10"
+          >
+            <Plus size={18} />
+            Tambah Barang
+          </button>
+        </div>
       </div>
 
       <div className="glass-panel rounded-2xl flex-1 flex flex-col overflow-hidden relative">

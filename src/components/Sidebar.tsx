@@ -1,12 +1,13 @@
 import React from 'react';
-import { LayoutDashboard, Package, Wrench, Users, ScanBarcode } from 'lucide-react';
+import { LayoutDashboard, Package, Wrench, Users, ScanBarcode, UserCog } from 'lucide-react';
 
 interface SidebarProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
+  currentUserRole?: string;
 }
 
-export default function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
+export default function Sidebar({ activeTab, setActiveTab, currentUserRole }: SidebarProps) {
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'inventory', label: 'Katalog Barang', icon: Package },
@@ -14,6 +15,10 @@ export default function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
     { id: 'repairs', label: 'Perbaikan', icon: Wrench },
     { id: 'borrowing', label: 'Peminjaman', icon: Users },
   ];
+
+  if (currentUserRole === 'Admin') {
+    menuItems.push({ id: 'users', label: 'Manajemen User', icon: UserCog });
+  }
 
   return (
     <nav className="w-64 glass-panel border-r border-t-0 border-b-0 border-white/10 p-6 flex flex-col gap-2 z-10">

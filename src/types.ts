@@ -26,3 +26,12 @@ export interface BorrowRecord {
   returnDate?: string;
   status: 'Dipinjam' | 'Dikembalikan';
 }
+
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  password?: string;
+  role: 'Admin' | 'Staff';
+  createdAt: string;
+}

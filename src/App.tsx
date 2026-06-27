@@ -7,24 +7,33 @@ import Repairs from './components/Repairs';
 import Borrowing from './components/Borrowing';
 import Landing from './components/Landing';
 import Login from './components/Login';
+import UsersManagement from './components/UsersManagement';
 
-import { initialItems, initialRepairs, initialBorrows } from './data';
+import { initialItems, initialRepairs, initialBorrows, initialUsers } from './data';
 import { Package, LogOut } from 'lucide-react';
+import { User } from './types';
 
 export default function App() {
   const [authView, setAuthView] = useState<'landing' | 'login' | 'app'>('landing');
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
   
   const [items, setItems] = useState(initialItems);
   const [repairs, setRepairs] = useState(initialRepairs);
   const [borrows, setBorrows] = useState(initialBorrows);
+  const [users, setUsers] = useState(initialUsers);
+
+  const handleLogout = () => {
+    setCurrentUser(null);
+    setAuthView('landing');
+  };
 
   if (authView === 'landing') {
     return <Landing onLoginClick={() => setAuthView('login')} items={items} repairs={repairs} borrows={borrows} />;
   }
 
   if (authView === 'login') {
-    return <Login onLogin={() => setAuthView('app')} onBack={() => setAuthView('landing')} />;
+    return <Login onLogin={(user) => { setCurrentUser(user); setAuthView('app'); }} onBack={() => setAuthView('landing')} users={users} />;
   }
 
   return (
@@ -39,8 +48,14 @@ export default function App() {
         </div>
 
         <div className="flex items-center gap-4">
+          {currentUser && (
+            <div className="text-sm font-mono flex items-center gap-2">
+              <span className="text-slate-400">Hi,</span>
+              <span className="text-white font-bold">{currentUser.name}</span>
+            </div>
+          )}
           <button 
-            onClick={() => setAuthView('landing')}
+            onClick={handleLogout}
             className="flex items-center gap-2 bg-white/5 border border-white/10 px-4 py-2 hover:bg-red-500/20 hover:border-red-500/50 hover:text-red-300 transition-all font-mono text-sm font-medium rounded-full"
           >
             <LogOut size={16} />
@@ -50,7 +65,7 @@ export default function App() {
       </header>
 
       <div className="flex flex-1 overflow-hidden">
-        <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+        <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} currentUserRole={currentUser?.role} />
         
         <main className="flex-1 overflow-y-auto p-8 relative z-0">
           <div className="max-w-6xl mx-auto relative">
@@ -59,6 +74,7 @@ export default function App() {
             {activeTab === 'scanner' && <Scanner items={items} />}
             {activeTab === 'repairs' && <Repairs repairs={repairs} />}
             {activeTab === 'borrowing' && <Borrowing borrows={borrows} />}
+            {activeTab === 'users' && currentUser?.role === 'Admin' && <UsersManagement users={users} setUsers={setUsers} currentUser={currentUser} />}
           </div>
         </main>
       </div>
