@@ -369,12 +369,12 @@ export default function Inventory({ items, setItems }: InventoryProps) {
 
   return (
     <div className="h-full flex flex-col space-y-6 relative">
-      <div className="flex justify-between items-end">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-4 sm:gap-0">
         <div>
-          <h2 className="text-3xl font-display font-bold text-white uppercase tracking-wider text-gradient">Katalog Barang</h2>
-          <p className="text-sm font-mono font-medium text-slate-400 mt-2 uppercase tracking-wider">Kelola data inventaris</p>
+          <h2 className="text-2xl sm:text-3xl font-display font-bold text-white uppercase tracking-wider text-gradient">Katalog Barang</h2>
+          <p className="text-xs sm:text-sm font-mono font-medium text-slate-400 mt-2 uppercase tracking-wider">Kelola data inventaris</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
           <input 
             type="file" 
             accept=".csv" 
@@ -407,8 +407,8 @@ export default function Inventory({ items, setItems }: InventoryProps) {
       </div>
 
       <div className="glass-panel rounded-2xl flex-1 flex flex-col overflow-hidden relative">
-        <div className="p-5 border-b border-white/10 flex gap-4 bg-white/[0.02] items-center justify-between">
-          <div className="relative flex-1 max-w-md">
+        <div className="p-4 sm:p-5 border-b border-white/10 flex flex-col sm:flex-row gap-4 bg-white/[0.02] items-start sm:items-center justify-between">
+          <div className="relative w-full sm:max-w-md flex-1">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
             <input 
               type="text"
@@ -422,7 +422,7 @@ export default function Inventory({ items, setItems }: InventoryProps) {
           {selectedIds.size > 0 && (
             <button 
               onClick={handleMultiDelete}
-              className="flex items-center gap-2 px-4 py-2 bg-red-500/20 text-red-400 hover:bg-red-500/30 hover:text-red-300 rounded-xl font-mono text-sm uppercase transition-colors border border-red-500/30"
+              className="flex items-center justify-center gap-2 px-4 py-2 bg-red-500/20 text-red-400 hover:bg-red-500/30 hover:text-red-300 rounded-xl font-mono text-sm uppercase transition-colors border border-red-500/30 w-full sm:w-auto"
             >
               <Trash2 size={16} />
               Hapus ({selectedIds.size})
@@ -431,7 +431,8 @@ export default function Inventory({ items, setItems }: InventoryProps) {
         </div>
 
         <div className="flex-1 overflow-auto">
-          <table className="w-full text-left text-sm border-collapse">
+          <div className="min-w-max">
+            <table className="w-full text-left text-sm border-collapse">
             <thead className="bg-white/5 sticky top-0 border-b border-white/10 z-10 backdrop-blur-md">
               <tr>
                 <th className="py-4 px-6 w-12">
@@ -489,6 +490,7 @@ export default function Inventory({ items, setItems }: InventoryProps) {
               )}
             </tbody>
           </table>
+          </div>
         </div>
         
         {/* Pagination */}

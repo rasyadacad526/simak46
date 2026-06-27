@@ -1,13 +1,15 @@
 import React from 'react';
-import { LayoutDashboard, Package, Wrench, Users, ScanBarcode, UserCog } from 'lucide-react';
+import { LayoutDashboard, Package, Wrench, Users, ScanBarcode, UserCog, X } from 'lucide-react';
 
 interface SidebarProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
   currentUserRole?: string;
+  isOpen?: boolean;
+  setIsOpen?: (isOpen: boolean) => void;
 }
 
-export default function Sidebar({ activeTab, setActiveTab, currentUserRole }: SidebarProps) {
+export default function Sidebar({ activeTab, setActiveTab, currentUserRole, isOpen, setIsOpen }: SidebarProps) {
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'inventory', label: 'Katalog Barang', icon: Package },
@@ -21,8 +23,15 @@ export default function Sidebar({ activeTab, setActiveTab, currentUserRole }: Si
   }
 
   return (
-    <nav className="w-64 glass-panel border-r border-t-0 border-b-0 border-white/10 p-6 flex flex-col gap-2 z-10">
-      <div className="text-xs font-mono font-medium text-slate-500 mb-4 uppercase tracking-widest pl-2">Menu Navigasi</div>
+    <nav className={`fixed md:relative w-64 h-full glass-panel border-r border-white/10 p-6 flex flex-col gap-2 z-[40] transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
+      <div className="flex justify-between items-center mb-4 md:hidden">
+        <div className="text-xs font-mono font-medium text-slate-500 uppercase tracking-widest pl-2">Menu Navigasi</div>
+        <button onClick={() => setIsOpen?.(false)} className="text-slate-400 hover:text-white p-1">
+          <X size={20} />
+        </button>
+      </div>
+      <div className="hidden md:block text-xs font-mono font-medium text-slate-500 mb-4 uppercase tracking-widest pl-2">Menu Navigasi</div>
+      
       {menuItems.map((item) => {
         const Icon = item.icon;
         const isActive = activeTab === item.id;

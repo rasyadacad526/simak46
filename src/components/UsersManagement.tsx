@@ -121,14 +121,14 @@ export default function UsersManagement({ users, setUsers, currentUser }: UsersM
 
   return (
     <div className="h-full flex flex-col space-y-6 relative">
-      <div className="flex justify-between items-end">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-4 sm:gap-0">
         <div>
-          <h2 className="text-3xl font-display font-bold text-white uppercase tracking-wider text-gradient">Manajemen User</h2>
-          <p className="text-sm font-mono font-medium text-slate-400 mt-2 uppercase tracking-wider">Kelola akses sistem</p>
+          <h2 className="text-2xl sm:text-3xl font-display font-bold text-white uppercase tracking-wider text-gradient">Manajemen User</h2>
+          <p className="text-xs sm:text-sm font-mono font-medium text-slate-400 mt-2 uppercase tracking-wider">Kelola akses sistem</p>
         </div>
         <button 
           onClick={openAddModal}
-          className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white px-6 py-2.5 font-bold font-mono text-sm uppercase transition-all shadow-[0_0_20px_rgba(139,92,246,0.3)] hover:shadow-[0_0_30px_rgba(139,92,246,0.5)] flex items-center gap-2 rounded-xl border border-white/10"
+          className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white px-6 py-2.5 font-bold font-mono text-sm uppercase transition-all shadow-[0_0_20px_rgba(139,92,246,0.3)] hover:shadow-[0_0_30px_rgba(139,92,246,0.5)] flex items-center justify-center sm:justify-start gap-2 rounded-xl border border-white/10 w-full sm:w-auto"
         >
           <Plus size={18} />
           Tambah User
@@ -137,36 +137,38 @@ export default function UsersManagement({ users, setUsers, currentUser }: UsersM
 
       <div className="glass-panel rounded-2xl flex-1 flex flex-col overflow-hidden relative">
         <div className="flex-1 overflow-auto">
-          <table className="w-full text-left text-sm border-collapse">
-            <thead className="bg-white/5 sticky top-0 border-b border-white/10 z-10 backdrop-blur-md">
-              <tr>
-                <th className="py-4 px-6 font-mono font-medium text-slate-400 uppercase tracking-wider text-xs">Nama Lengkap</th>
-                <th className="py-4 px-6 font-mono font-medium text-slate-400 uppercase tracking-wider text-xs">Email</th>
-                <th className="py-4 px-6 font-mono font-medium text-slate-400 uppercase tracking-wider text-xs">Role</th>
-                <th className="py-4 px-6 font-mono font-medium text-slate-400 uppercase tracking-wider text-xs text-right">Aksi</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/5">
-              {users.map(user => (
-                <tr key={user.id} className="hover:bg-white/[0.04] transition-colors group">
-                  <td className="py-4 px-6 font-medium text-slate-200">{user.name}</td>
-                  <td className="py-4 px-6 font-mono text-slate-400">{user.email}</td>
-                  <td className="py-4 px-6">
-                    <span className={`px-3 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider ${
-                      user.role === 'Admin' ? 'bg-purple-500/20 text-purple-300' : 'bg-blue-500/20 text-blue-300'
-                    }`}>
-                      {user.role}
-                    </span>
-                  </td>
-                  <td className="py-4 px-6 text-right space-x-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button onClick={() => openResetModal(user)} className="text-yellow-400 hover:text-yellow-300 font-mono font-bold text-xs uppercase transition-colors inline-flex items-center gap-1" title="Reset Password"><Lock size={14} /> Reset</button>
-                    <button onClick={() => openEditModal(user)} className="text-blue-400 hover:text-blue-300 font-mono font-bold text-xs uppercase transition-colors inline-flex items-center gap-1"><Edit size={14} /> Edit</button>
-                    <button onClick={() => handleDelete(user.id)} className="text-red-400 hover:text-red-300 font-mono font-bold text-xs uppercase transition-colors inline-flex items-center gap-1"><Trash2 size={14} /> Hapus</button>
-                  </td>
+          <div className="min-w-max">
+            <table className="w-full text-left text-sm border-collapse">
+              <thead className="bg-white/5 sticky top-0 border-b border-white/10 z-10 backdrop-blur-md">
+                <tr>
+                  <th className="py-4 px-6 font-mono font-medium text-slate-400 uppercase tracking-wider text-xs">Nama Lengkap</th>
+                  <th className="py-4 px-6 font-mono font-medium text-slate-400 uppercase tracking-wider text-xs">Email</th>
+                  <th className="py-4 px-6 font-mono font-medium text-slate-400 uppercase tracking-wider text-xs">Role</th>
+                  <th className="py-4 px-6 font-mono font-medium text-slate-400 uppercase tracking-wider text-xs text-right">Aksi</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-white/5">
+                {users.map(user => (
+                  <tr key={user.id} className="hover:bg-white/[0.04] transition-colors group">
+                    <td className="py-4 px-6 font-medium text-slate-200">{user.name}</td>
+                    <td className="py-4 px-6 font-mono text-slate-400">{user.email}</td>
+                    <td className="py-4 px-6">
+                      <span className={`px-3 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider ${
+                        user.role === 'Admin' ? 'bg-purple-500/20 text-purple-300' : 'bg-blue-500/20 text-blue-300'
+                      }`}>
+                        {user.role}
+                      </span>
+                    </td>
+                    <td className="py-4 px-6 text-right space-x-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button onClick={() => openResetModal(user)} className="text-yellow-400 hover:text-yellow-300 font-mono font-bold text-xs uppercase transition-colors inline-flex items-center gap-1" title="Reset Password"><Lock size={14} /> Reset</button>
+                      <button onClick={() => openEditModal(user)} className="text-blue-400 hover:text-blue-300 font-mono font-bold text-xs uppercase transition-colors inline-flex items-center gap-1"><Edit size={14} /> Edit</button>
+                      <button onClick={() => handleDelete(user.id)} className="text-red-400 hover:text-red-300 font-mono font-bold text-xs uppercase transition-colors inline-flex items-center gap-1"><Trash2 size={14} /> Hapus</button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
