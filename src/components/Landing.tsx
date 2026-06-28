@@ -100,81 +100,138 @@ export default function Landing({ onLoginClick, items, repairs, borrows }: Landi
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-5xl">
-           <div className="glass-card rounded-2xl p-6 group">
-              <div className="flex items-center gap-4 mb-6">
-                <div className="p-3 bg-blue-500/20 text-blue-400 rounded-xl group-hover:bg-blue-500/30 transition-colors">
+        <div className="flex flex-col gap-8 w-full max-w-5xl mb-12">
+           <div className="glass-card rounded-2xl overflow-hidden flex flex-col">
+             <div className="p-6 border-b border-white/10 flex items-center gap-4 bg-white/5">
+                <div className="p-3 bg-blue-500/20 text-blue-400 rounded-xl">
                   <Package size={24} />
                 </div>
                 <div>
                   <h4 className="font-display font-bold text-white uppercase tracking-wider">Katalog Barang</h4>
                   <p className="text-xs font-mono text-slate-400 mt-1">{items.length} TOTAL ASET</p>
                 </div>
-              </div>
-              <div className="space-y-3">
-                {items.slice(0, 3).map(item => (
-                  <div key={item.id} className="flex justify-between items-center text-sm py-3 px-4 bg-white/5 rounded-xl border border-white/5">
-                    <span className="font-medium text-slate-200">{item.name}</span>
-                    <span className={`px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider ${
-                      item.stock > 0 ? 'bg-emerald-500/20 text-emerald-300' : 'bg-red-500/20 text-red-300'
-                    }`}>
-                      {item.stock} Unit
-                    </span>
-                  </div>
-                ))}
-              </div>
+             </div>
+             <div className="overflow-x-auto max-h-96 overflow-y-auto">
+               <table className="w-full text-left border-collapse whitespace-nowrap">
+                  <thead className="sticky top-0 bg-[#151520] z-10">
+                    <tr className="border-b border-white/10 text-xs font-mono uppercase tracking-wider text-slate-400">
+                      <th className="p-4 font-medium">SKU</th>
+                      <th className="p-4 font-medium">Nama Barang</th>
+                      <th className="p-4 font-medium">Kategori</th>
+                      <th className="p-4 font-medium">Stok</th>
+                      <th className="p-4 font-medium">Lokasi</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-white/5 text-sm">
+                    {items.map(item => (
+                       <tr key={item.id} className="hover:bg-white/5 transition-colors">
+                         <td className="p-4 text-slate-400 font-mono text-xs">{item.sku}</td>
+                         <td className="p-4 text-white font-medium">{item.name}</td>
+                         <td className="p-4 text-slate-300">{item.category}</td>
+                         <td className="p-4">
+                           <span className={`px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider ${
+                             item.stock > 0 ? 'bg-emerald-500/20 text-emerald-300' : 'bg-red-500/20 text-red-300'
+                           }`}>
+                             {item.stock} Unit
+                           </span>
+                         </td>
+                         <td className="p-4 text-slate-400">{item.location}</td>
+                       </tr>
+                    ))}
+                    {items.length === 0 && (
+                      <tr><td colSpan={5} className="p-8 text-center text-slate-500 font-mono text-xs uppercase tracking-wider">Tidak ada barang</td></tr>
+                    )}
+                  </tbody>
+               </table>
+             </div>
            </div>
 
-           <div className="glass-card rounded-2xl p-6 group">
-              <div className="flex items-center gap-4 mb-6">
-                <div className="p-3 bg-purple-500/20 text-purple-400 rounded-xl group-hover:bg-purple-500/30 transition-colors">
+           <div className="glass-card rounded-2xl overflow-hidden flex flex-col">
+             <div className="p-6 border-b border-white/10 flex items-center gap-4 bg-white/5">
+                <div className="p-3 bg-purple-500/20 text-purple-400 rounded-xl">
                   <Users size={24} />
                 </div>
                 <div>
-                  <h4 className="font-display font-bold text-white uppercase tracking-wider">Peminjaman</h4>
+                  <h4 className="font-display font-bold text-white uppercase tracking-wider">Peminjam Aktif</h4>
                   <p className="text-xs font-mono text-slate-400 mt-1">{borrows.filter(b => b.status === 'Dipinjam').length} AKTIF</p>
                 </div>
-              </div>
-              <div className="space-y-3">
-                {borrows.slice(0, 3).map(record => (
-                  <div key={record.id} className="flex flex-col text-sm py-3 px-4 bg-white/5 rounded-xl border border-white/5">
-                    <div className="flex justify-between mb-1">
-                      <span className="font-medium text-slate-200">{record.borrowerName}</span>
-                      <span className="text-[10px] uppercase font-bold tracking-wider bg-white/10 text-slate-300 px-2 py-0.5 rounded-md">{record.status}</span>
-                    </div>
-                    <span className="text-xs text-slate-400">{record.itemName}</span>
-                  </div>
-                ))}
-                {borrows.length === 0 && (
-                  <div className="text-center text-xs font-mono text-slate-500 py-4 uppercase tracking-wider">TIDAK ADA PEMINJAMAN</div>
-                )}
-              </div>
+             </div>
+             <div className="overflow-x-auto max-h-96 overflow-y-auto">
+               <table className="w-full text-left border-collapse whitespace-nowrap">
+                  <thead className="sticky top-0 bg-[#151520] z-10">
+                    <tr className="border-b border-white/10 text-xs font-mono uppercase tracking-wider text-slate-400">
+                      <th className="p-4 font-medium">Nama Peminjam</th>
+                      <th className="p-4 font-medium">Barang</th>
+                      <th className="p-4 font-medium">Tanggal Pinjam</th>
+                      <th className="p-4 font-medium">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-white/5 text-sm">
+                    {borrows.map(record => (
+                       <tr key={record.id} className="hover:bg-white/5 transition-colors">
+                         <td className="p-4 text-white font-medium">{record.borrowerName}</td>
+                         <td className="p-4 text-slate-300">{record.itemName}</td>
+                         <td className="p-4 text-slate-400 font-mono text-xs">{new Date(record.borrowDate).toLocaleDateString('id-ID')}</td>
+                         <td className="p-4">
+                           <span className={`px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider ${
+                             record.status === 'Dipinjam' ? 'bg-amber-500/20 text-amber-300' : 'bg-blue-500/20 text-blue-300'
+                           }`}>
+                             {record.status}
+                           </span>
+                         </td>
+                       </tr>
+                    ))}
+                    {borrows.length === 0 && (
+                      <tr><td colSpan={4} className="p-8 text-center text-slate-500 font-mono text-xs uppercase tracking-wider">TIDAK ADA PEMINJAMAN</td></tr>
+                    )}
+                  </tbody>
+               </table>
+             </div>
            </div>
 
-           <div className="glass-card rounded-2xl p-6 group">
-              <div className="flex items-center gap-4 mb-6">
-                <div className="p-3 bg-pink-500/20 text-pink-400 rounded-xl group-hover:bg-pink-500/30 transition-colors">
+           <div className="glass-card rounded-2xl overflow-hidden flex flex-col">
+             <div className="p-6 border-b border-white/10 flex items-center gap-4 bg-white/5">
+                <div className="p-3 bg-pink-500/20 text-pink-400 rounded-xl">
                   <Wrench size={24} />
                 </div>
                 <div>
                   <h4 className="font-display font-bold text-white uppercase tracking-wider">Perbaikan</h4>
                   <p className="text-xs font-mono text-slate-400 mt-1">{repairs.filter(r => r.status !== 'Selesai').length} MENUNGGU</p>
                 </div>
-              </div>
-              <div className="space-y-3">
-                {repairs.slice(0, 3).map(repair => (
-                  <div key={repair.id} className="flex flex-col text-sm py-3 px-4 bg-white/5 rounded-xl border border-white/5">
-                    <div className="flex justify-between mb-1">
-                      <span className="font-medium text-slate-200">{repair.itemName}</span>
-                      <span className="text-[10px] uppercase font-bold tracking-wider bg-white/10 text-slate-300 px-2 py-0.5 rounded-md">{repair.status}</span>
-                    </div>
-                    <span className="text-xs text-slate-400 line-clamp-1">{repair.description}</span>
-                  </div>
-                ))}
-                {repairs.length === 0 && (
-                  <div className="text-center text-xs font-mono text-slate-500 py-4 uppercase tracking-wider">SEMUA SISTEM AMAN</div>
-                )}
-              </div>
+             </div>
+             <div className="overflow-x-auto max-h-96 overflow-y-auto">
+               <table className="w-full text-left border-collapse whitespace-nowrap">
+                  <thead className="sticky top-0 bg-[#151520] z-10">
+                    <tr className="border-b border-white/10 text-xs font-mono uppercase tracking-wider text-slate-400">
+                      <th className="p-4 font-medium">Barang</th>
+                      <th className="p-4 font-medium">Tanggal Lapor</th>
+                      <th className="p-4 font-medium">Deskripsi</th>
+                      <th className="p-4 font-medium">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-white/5 text-sm">
+                    {repairs.map(repair => (
+                       <tr key={repair.id} className="hover:bg-white/5 transition-colors">
+                         <td className="p-4 text-white font-medium">{repair.itemName}</td>
+                         <td className="p-4 text-slate-400 font-mono text-xs">{new Date(repair.dateReported).toLocaleDateString('id-ID')}</td>
+                         <td className="p-4 text-slate-400 max-w-[200px] truncate">{repair.description}</td>
+                         <td className="p-4">
+                           <span className={`px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider ${
+                             repair.status === 'Selesai' ? 'bg-emerald-500/20 text-emerald-300' :
+                             repair.status === 'Diproses' ? 'bg-blue-500/20 text-blue-300' :
+                             'bg-amber-500/20 text-amber-300'
+                           }`}>
+                             {repair.status}
+                           </span>
+                         </td>
+                       </tr>
+                    ))}
+                    {repairs.length === 0 && (
+                      <tr><td colSpan={4} className="p-8 text-center text-slate-500 font-mono text-xs uppercase tracking-wider">SEMUA SISTEM AMAN</td></tr>
+                    )}
+                  </tbody>
+               </table>
+             </div>
            </div>
         </div>
       </main>
