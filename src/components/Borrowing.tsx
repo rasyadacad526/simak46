@@ -7,9 +7,10 @@ interface BorrowingProps {
   borrows: BorrowRecord[];
   setBorrows: React.Dispatch<React.SetStateAction<BorrowRecord[]>>;
   items: Item[];
+  setItems: React.Dispatch<React.SetStateAction<Item[]>>;
 }
 
-export default function Borrowing({ borrows, setBorrows, items }: BorrowingProps) {
+export default function Borrowing({ borrows, setBorrows, items, setItems }: BorrowingProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -94,6 +95,10 @@ export default function Borrowing({ borrows, setBorrows, items }: BorrowingProps
       reverseButtons: true
     }).then((result) => {
       if (result.isConfirmed) {
+        const target = borrows.find(b => b.id === id);
+        if (target && target.status === 'Dipinjam') {
+          setItems(prev => prev.map(item => item.id === target.itemId ? { ...item, stock: item.stock + 1 } : item));
+        }
         setBorrows(prev => prev.filter(b => b.id !== id));
         setSelectedIds(prev => {
           const newSet = new Set(prev);
@@ -123,6 +128,23 @@ export default function Borrowing({ borrows, setBorrows, items }: BorrowingProps
       reverseButtons: true
     }).then((result) => {
       if (result.isConfirmed) {
+        const targets = borrows.filter(b => selectedIds.has(b.id));
+        const additions: Record<string, number> = {};
+        targets.forEach(t => {
+          if (t.status === 'Dipinjam') {
+            additions[t.itemId] = (additions[t.itemId] || 0) + 1;
+          }
+        });
+        if (Object.keys(additions).length > 0) {
+          setItems(prev => prev.map(item => {
+            const add = additions[item.id];
+            if (add) {
+              return { ...item, stock: item.stock + add };
+            }
+            return item;
+          }));
+        }
+
         setBorrows(prev => prev.filter(b => !selectedIds.has(b.id)));
         setSelectedIds(new Set());
         successSwal.fire({
@@ -171,6 +193,34 @@ export default function Borrowing({ borrows, setBorrows, items }: BorrowingProps
     const itemName = selectedItem ? selectedItem.name : 'Barang Tidak Diketahui';
     
     if (editingBorrow) {
+      let virtualStock = selectedItem ? selectedItem.stock : 0;
+      if (editingBorrow.itemId === formData.itemId) {
+        if (editingBorrow.status === 'Dikembalikan' && formData.status === 'Dipinjam') {
+          if (virtualStock <= 0) {
+            customSwal.fire('Stok Habis', 'Stok barang tidak mencukupi untuk dipinjam.', 'error');
+            return;
+          }
+        }
+      } else {
+        if (formData.status === 'Dipinjam') {
+          if (virtualStock <= 0) {
+            customSwal.fire('Stok Habis', 'Stok barang tidak mencukupi untuk dipinjam.', 'error');
+            return;
+          }
+        }
+      }
+
+      setItems(prev => {
+        let updated = [...prev];
+        if (editingBorrow.status === 'Dipinjam') {
+          updated = updated.map(item => item.id === editingBorrow.itemId ? { ...item, stock: item.stock + 1 } : item);
+        }
+        if (formData.status === 'Dipinjam') {
+          updated = updated.map(item => item.id === formData.itemId ? { ...item, stock: item.stock - 1 } : item);
+        }
+        return updated;
+      });
+
       setBorrows(prev => prev.map(b => 
         b.id === editingBorrow.id 
           ? { 
@@ -180,12 +230,23 @@ export default function Borrowing({ borrows, setBorrows, items }: BorrowingProps
               status: formData.status,
               itemName, 
               borrowDate: formData.borrowDate ? new Date(formData.borrowDate).toISOString() : b.borrowDate,
-              returnDate: formData.returnDate ? new Date(formData.returnDate).toISOString() : undefined 
+              returnDate: formData.status === 'Dikembalikan' ? (formData.returnDate ? new Date(formData.returnDate).toISOString() : new Date().toISOString()) : undefined 
             }
           : b
       ));
       successSwal.fire({ title: 'Tersimpan!', text: 'Perubahan berhasil disimpan.', icon: 'success', confirmButtonText: 'OK' });
     } else {
+      if (formData.status === 'Dipinjam') {
+        if (!selectedItem || selectedItem.stock <= 0) {
+          customSwal.fire('Stok Habis', 'Stok barang tidak mencukupi untuk dipinjam.', 'error');
+          return;
+        }
+      }
+
+      if (formData.status === 'Dipinjam') {
+        setItems(prev => prev.map(item => item.id === formData.itemId ? { ...item, stock: item.stock - 1 } : item));
+      }
+
       const newBorrow: BorrowRecord = {
         id: Math.random().toString(36).substr(2, 9),
         itemId: formData.itemId,
@@ -193,7 +254,7 @@ export default function Borrowing({ borrows, setBorrows, items }: BorrowingProps
         borrowerName: formData.borrowerName,
         status: formData.status,
         borrowDate: formData.borrowDate ? new Date(formData.borrowDate).toISOString() : new Date().toISOString(),
-        returnDate: formData.returnDate ? new Date(formData.returnDate).toISOString() : undefined
+        returnDate: formData.status === 'Dikembalikan' ? (formData.returnDate ? new Date(formData.returnDate).toISOString() : new Date().toISOString()) : undefined
       };
       setBorrows(prev => [newBorrow, ...prev]);
       successSwal.fire({ title: 'Berhasil!', text: 'Data peminjaman baru ditambahkan.', icon: 'success', confirmButtonText: 'OK' });
@@ -212,6 +273,10 @@ export default function Borrowing({ borrows, setBorrows, items }: BorrowingProps
       reverseButtons: true
     }).then((result) => {
       if (result.isConfirmed) {
+        const target = borrows.find(b => b.id === id);
+        if (target && target.status === 'Dipinjam') {
+          setItems(prev => prev.map(item => item.id === target.itemId ? { ...item, stock: item.stock + 1 } : item));
+        }
         setBorrows(prev => prev.map(b => 
           b.id === id 
             ? { ...b, status: 'Dikembalikan', returnDate: new Date().toISOString() }

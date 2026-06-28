@@ -162,7 +162,7 @@ export default function App() {
             {activeTab === 'inventory' && <Inventory items={items} setItems={setItems} />}
             {activeTab === 'scanner' && <Scanner items={items} />}
             {activeTab === 'repairs' && <Repairs items={items} repairs={repairs} setRepairs={setRepairs} />}
-            {activeTab === 'borrowing' && <Borrowing items={items} borrows={borrows} setBorrows={setBorrows} />}
+            {activeTab === 'borrowing' && <Borrowing items={items} setItems={setItems} borrows={borrows} setBorrows={setBorrows} />}
             {activeTab === 'users' && currentUser?.role === 'Admin' && <UsersManagement users={users} setUsers={setUsers} currentUser={currentUser} />}
           </div>
         </main>
