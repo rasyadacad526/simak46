@@ -56,6 +56,12 @@ export default function Inventory({ items, setItems }: InventoryProps) {
     });
   }, [items]);
 
+  const generateSKU = (catName: string) => {
+    const prefix = catName ? catName.substring(0, 3).toUpperCase() : 'ITM';
+    const random = Math.floor(1000 + Math.random() * 9000);
+    return `${prefix}-${random}`;
+  };
+
   const filteredItems = useMemo(() => {
     return items.filter(item => 
       item.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -231,7 +237,7 @@ export default function Inventory({ items, setItems }: InventoryProps) {
   const openAddModal = () => {
     setEditingItem(null);
     const defaultCat = categories[0] || '';
-    setFormData({ sku: '', name: '', category: defaultCat, stock: 0, location: '' });
+    setFormData({ sku: generateSKU(defaultCat), name: '', category: defaultCat, stock: 0, location: '' });
     setIsModalOpen(true);
   };
 
@@ -339,15 +345,11 @@ export default function Inventory({ items, setItems }: InventoryProps) {
 
           if (values.length >= 4) {
             const stock = parseInt(values[3], 10) || 0;
-            let sku = values[0] || '';
-            
-            if (!sku) {
-              continue; // Skip items without SKU if not generated
-            }
+            let sku = values[0] || generateSKU(values[2] || '');
             
             // Ensure unique SKU within the import file
-            if (seenSkus.has(sku)) {
-              continue; // Skip duplicates
+            while (seenSkus.has(sku)) {
+              sku = generateSKU(values[2] || '');
             }
             seenSkus.add(sku);
 
@@ -666,6 +668,7 @@ export default function Inventory({ items, setItems }: InventoryProps) {
               <div>
                 <div className="flex justify-between items-center mb-2">
                   <label className="block text-xs font-mono font-medium text-slate-400 uppercase tracking-wider">SKU</label>
+                  <button type="button" onClick={() => setFormData(p => ({ ...p, sku: generateSKU(p.category) }))} className="text-xs font-mono text-blue-400 hover:text-blue-300">Generate Ulang</button>
                 </div>
                 <input 
                   type="text" required
@@ -690,7 +693,7 @@ export default function Inventory({ items, setItems }: InventoryProps) {
                   required
                   className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl font-mono text-sm focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 transition-all text-white appearance-none"
                   value={formData.category} 
-                  onChange={e => setFormData({...formData, category: e.target.value})}
+                  onChange={e => setFormData({...formData, category: e.target.value, sku: !editingItem ? generateSKU(e.target.value) : formData.sku})}
                 >
                   <option value="" disabled className="bg-[#1e1e2d]">Pilih Kategori</option>
                   {categories.map(cat => (
