@@ -5,6 +5,7 @@ export interface Item {
   category: string;
   stock: number;
   status: 'Tersedia' | 'Stok Menipis' | 'Habis';
+  location: string;
   lastUpdated: string;
 }
 

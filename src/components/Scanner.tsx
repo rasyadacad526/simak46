@@ -342,10 +342,14 @@ export default function Scanner({ items }: ScannerProps) {
                   Ditemukan
                 </span>
               </div>
-              <div className="mt-4 flex gap-8">
+              <div className="mt-4 flex gap-6 sm:gap-8 flex-wrap">
                 <div>
                   <span className="font-mono text-[10px] font-medium uppercase text-slate-500 block mb-1 tracking-wider">Kategori</span>
                   <span className="text-xs sm:text-sm font-medium text-slate-200">{scannedItem.category}</span>
+                </div>
+                <div>
+                  <span className="font-mono text-[10px] font-medium uppercase text-slate-500 block mb-1 tracking-wider">Letak/Posisi</span>
+                  <span className="text-xs sm:text-sm font-medium text-slate-200">{scannedItem.location || 'Gudang'}</span>
                 </div>
                 <div>
                   <span className="font-mono text-[10px] font-medium uppercase text-slate-500 block mb-1 tracking-wider">Stok</span>

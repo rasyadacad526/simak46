@@ -1,7 +1,8 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { Plus, Search, ChevronLeft, ChevronRight, Trash2, Edit, X, Download, Upload } from 'lucide-react';
+import { Plus, Search, ChevronLeft, ChevronRight, Trash2, Edit, X, Download, Upload, QrCode } from 'lucide-react';
 import { Item } from '../types';
 import Swal from 'sweetalert2';
+import { QRCodeCanvas } from 'qrcode.react';
 
 interface InventoryProps {
   items: Item[];
@@ -22,12 +23,27 @@ export default function Inventory({ items, setItems }: InventoryProps) {
     name: '',
     category: '',
     stock: 0,
+    location: '',
   });
 
   const [isCatModalOpen, setIsCatModalOpen] = useState(false);
   const [newCategory, setNewCategory] = useState('');
   const [categories, setCategories] = useState<string[]>(['Elektronik', 'Furnitur', 'Perangkat IT', 'Alat Tulis']);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [qrItem, setQrItem] = useState<Item | null>(null);
+
+  const downloadQRCode = () => {
+    if (!qrItem) return;
+    const canvas = document.getElementById('sku-qrcode-canvas') as HTMLCanvasElement;
+    if (!canvas) return;
+    const url = canvas.toDataURL('image/png');
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `qrcode-${qrItem.sku}.png`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  };
 
   useEffect(() => {
     const uniqueCats = new Set(items.map(i => i.category));
@@ -221,7 +237,7 @@ export default function Inventory({ items, setItems }: InventoryProps) {
   const openAddModal = () => {
     setEditingItem(null);
     const defaultCat = categories[0] || '';
-    setFormData({ sku: generateSKU(defaultCat), name: '', category: defaultCat, stock: 0 });
+    setFormData({ sku: generateSKU(defaultCat), name: '', category: defaultCat, stock: 0, location: '' });
     setIsModalOpen(true);
   };
 
@@ -231,7 +247,8 @@ export default function Inventory({ items, setItems }: InventoryProps) {
       sku: item.sku,
       name: item.name,
       category: item.category,
-      stock: item.stock
+      stock: item.stock,
+      location: item.location || ''
     });
     setIsModalOpen(true);
   };
@@ -258,7 +275,11 @@ export default function Inventory({ items, setItems }: InventoryProps) {
     } else {
       const newItem: Item = {
         id: Math.random().toString(36).substr(2, 9),
-        ...formData,
+        sku: formData.sku,
+        name: formData.name,
+        category: formData.category,
+        stock: formData.stock,
+        location: formData.location || 'Gudang',
         status,
         lastUpdated: new Date().toISOString()
       };
@@ -269,7 +290,7 @@ export default function Inventory({ items, setItems }: InventoryProps) {
   };
 
   const handleExport = () => {
-    const headers = ['SKU', 'Nama Barang', 'Kategori', 'Stok', 'Status', 'Last Updated'];
+    const headers = ['SKU', 'Nama Barang', 'Kategori', 'Stok', 'Status', 'Letak/Posisi', 'Last Updated'];
     const csvContent = [
       headers.join(','),
       ...filteredItems.map(item => [
@@ -278,6 +299,7 @@ export default function Inventory({ items, setItems }: InventoryProps) {
         `"${item.category}"`,
         item.stock,
         item.status,
+        `"${(item.location || '').replace(/"/g, '""')}"`,
         item.lastUpdated
       ].join(','))
     ].join('\n');
@@ -329,6 +351,7 @@ export default function Inventory({ items, setItems }: InventoryProps) {
               category: values[2] || 'Uncategorized',
               stock,
               status: stock === 0 ? 'Habis' : (stock <= 5 ? 'Stok Menipis' : 'Tersedia'),
+              location: values[5] || 'Gudang',
               lastUpdated: new Date().toISOString()
             });
           }
@@ -446,6 +469,7 @@ export default function Inventory({ items, setItems }: InventoryProps) {
                 <th className="py-4 px-6 font-mono font-medium text-slate-400 uppercase tracking-wider text-xs">SKU</th>
                 <th className="py-4 px-6 font-mono font-medium text-slate-400 uppercase tracking-wider text-xs">Nama Barang</th>
                 <th className="py-4 px-6 font-mono font-medium text-slate-400 uppercase tracking-wider text-xs">Kategori</th>
+                <th className="py-4 px-6 font-mono font-medium text-slate-400 uppercase tracking-wider text-xs">Posisi / Letak</th>
                 <th className="py-4 px-6 font-mono font-medium text-slate-400 uppercase tracking-wider text-xs">Stok</th>
                 <th className="py-4 px-6 font-mono font-medium text-slate-400 uppercase tracking-wider text-xs">Status</th>
                 <th className="py-4 px-6 font-mono font-medium text-slate-400 uppercase tracking-wider text-xs text-right">Aksi</th>
@@ -462,9 +486,25 @@ export default function Inventory({ items, setItems }: InventoryProps) {
                       onChange={() => handleSelect(item.id)}
                     />
                   </td>
-                  <td className="py-4 px-6 font-mono text-slate-500">{item.sku}</td>
+                  <td className="py-4 px-6 font-mono text-slate-500">
+                    <div className="flex items-center gap-2">
+                      <span>{item.sku}</span>
+                      <button 
+                        onClick={() => setQrItem(item)}
+                        className="p-1 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-purple-400 transition-all border border-white/5 hover:border-purple-500/30 cursor-pointer"
+                        title="Tampilkan QR Code"
+                      >
+                        <QrCode size={14} />
+                      </button>
+                    </div>
+                  </td>
                   <td className="py-4 px-6 font-medium text-slate-200">{item.name}</td>
                   <td className="py-4 px-6 text-slate-400">{item.category}</td>
+                  <td className="py-4 px-6">
+                    <span className="px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-xs font-mono text-slate-300">
+                      {item.location || 'Gudang'}
+                    </span>
+                  </td>
                   <td className="py-4 px-6 font-mono font-bold text-white">{item.stock}</td>
                   <td className="py-4 px-6">
                     <span className={`px-3 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider ${
@@ -483,7 +523,7 @@ export default function Inventory({ items, setItems }: InventoryProps) {
               ))}
               {paginatedItems.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="py-16 text-center">
+                  <td colSpan={8} className="py-16 text-center">
                     <p className="font-mono font-medium text-slate-500 uppercase tracking-wider text-sm">Tidak ada barang ditemukan</p>
                   </td>
                 </tr>
@@ -577,6 +617,15 @@ export default function Inventory({ items, setItems }: InventoryProps) {
                   value={formData.stock} onChange={e => setFormData({...formData, stock: parseInt(e.target.value) || 0})}
                 />
               </div>
+              <div>
+                <label className="block text-xs font-mono font-medium text-slate-400 mb-2 uppercase tracking-wider">Letak / Posisi</label>
+                <input 
+                  type="text" required
+                  placeholder="Contoh: Rak A1, Lemari B2, Gudang"
+                  className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl font-mono text-sm focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 transition-all text-white placeholder-slate-500"
+                  value={formData.location} onChange={e => setFormData({...formData, location: e.target.value})}
+                />
+              </div>
               
               <div className="pt-4 flex justify-end gap-3">
                 <button type="button" onClick={() => setIsModalOpen(false)} className="px-5 py-2.5 rounded-xl font-bold border border-white/10 text-white hover:bg-white/10 transition-colors">
@@ -642,6 +691,53 @@ export default function Inventory({ items, setItems }: InventoryProps) {
                   <p className="text-center text-slate-500 text-sm py-4">Belum ada kategori.</p>
                 )}
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal QR Code */}
+      {qrItem && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-[#1e1e2d] border border-white/10 rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden relative animate-fade-in">
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-purple-600"></div>
+            
+            <div className="p-6 border-b border-white/10 flex justify-between items-center bg-white/[0.02]">
+              <h3 className="text-lg font-display font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                <QrCode size={20} className="text-purple-400" />
+                QR Code SKU
+              </h3>
+              <button onClick={() => setQrItem(null)} className="text-slate-400 hover:text-white transition-colors cursor-pointer">
+                <X size={20} />
+              </button>
+            </div>
+            
+            <div className="p-6 flex flex-col items-center justify-center text-center space-y-6">
+              <div className="bg-white p-4 rounded-2xl shadow-lg border border-white/10">
+                <QRCodeCanvas 
+                  id="sku-qrcode-canvas"
+                  value={qrItem.sku}
+                  size={200}
+                  level="H"
+                  includeMargin={true}
+                />
+              </div>
+              
+              <div className="space-y-1">
+                <h4 className="text-lg font-display font-bold text-white tracking-wide">{qrItem.name}</h4>
+                <div className="flex justify-center gap-2 flex-wrap items-center">
+                  <p className="font-mono text-xs text-slate-400 bg-white/5 border border-white/10 px-3 py-1 rounded-full inline-block">{qrItem.sku}</p>
+                  <p className="font-mono text-xs text-purple-300 bg-purple-500/10 border border-purple-500/20 px-3 py-1 rounded-full inline-block">{qrItem.location || 'Gudang'}</p>
+                </div>
+              </div>
+
+              <button
+                onClick={downloadQRCode}
+                className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white py-3 rounded-xl font-display font-bold text-sm uppercase transition-all shadow-[0_0_20px_rgba(139,92,246,0.3)] hover:shadow-[0_0_30px_rgba(139,92,246,0.5)] border border-white/10 tracking-wider flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <Download size={18} />
+                Unduh QR Code
+              </button>
             </div>
           </div>
         </div>
