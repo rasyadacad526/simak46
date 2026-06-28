@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Sidebar from './components/Sidebar';
 import Dashboard from './components/Dashboard';
 import Inventory from './components/Inventory';
@@ -11,18 +11,64 @@ import UsersManagement from './components/UsersManagement';
 
 import { initialItems, initialRepairs, initialBorrows, initialUsers } from './data';
 import { Package, LogOut, Menu, X } from 'lucide-react';
-import { User } from './types';
+import { User, Item } from './types';
 
 export default function App() {
-  const [authView, setAuthView] = useState<'landing' | 'login' | 'app'>('landing');
+  const [authView, setAuthView] = useState<'landing' | 'login' | 'app'>(() => {
+    const saved = localStorage.getItem('simak46_authView');
+    return (saved as 'landing' | 'login' | 'app') || 'landing';
+  });
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [currentUser, setCurrentUser] = useState<User | null>(() => {
+    const saved = localStorage.getItem('simak46_currentUser');
+    return saved ? JSON.parse(saved) : null;
+  });
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   
-  const [items, setItems] = useState(initialItems);
-  const [repairs, setRepairs] = useState(initialRepairs);
-  const [borrows, setBorrows] = useState(initialBorrows);
-  const [users, setUsers] = useState(initialUsers);
+  const [items, setItems] = useState<Item[]>(() => {
+    const saved = localStorage.getItem('simak46_items');
+    return saved ? JSON.parse(saved) : initialItems;
+  });
+  const [repairs, setRepairs] = useState(() => {
+    const saved = localStorage.getItem('simak46_repairs');
+    return saved ? JSON.parse(saved) : initialRepairs;
+  });
+  const [borrows, setBorrows] = useState(() => {
+    const saved = localStorage.getItem('simak46_borrows');
+    return saved ? JSON.parse(saved) : initialBorrows;
+  });
+  const [users, setUsers] = useState(() => {
+    const saved = localStorage.getItem('simak46_users');
+    return saved ? JSON.parse(saved) : initialUsers;
+  });
+
+  useEffect(() => {
+    localStorage.setItem('simak46_authView', authView);
+  }, [authView]);
+
+  useEffect(() => {
+    if (currentUser) {
+      localStorage.setItem('simak46_currentUser', JSON.stringify(currentUser));
+    } else {
+      localStorage.removeItem('simak46_currentUser');
+    }
+  }, [currentUser]);
+
+  useEffect(() => {
+    localStorage.setItem('simak46_items', JSON.stringify(items));
+  }, [items]);
+
+  useEffect(() => {
+    localStorage.setItem('simak46_repairs', JSON.stringify(repairs));
+  }, [repairs]);
+
+  useEffect(() => {
+    localStorage.setItem('simak46_borrows', JSON.stringify(borrows));
+  }, [borrows]);
+
+  useEffect(() => {
+    localStorage.setItem('simak46_users', JSON.stringify(users));
+  }, [users]);
 
   const handleLogout = () => {
     setCurrentUser(null);
