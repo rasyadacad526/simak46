@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { Plus, Search, ChevronLeft, ChevronRight, Trash2, Edit, X, Download, Upload, QrCode } from 'lucide-react';
+import { Plus, Search, ChevronLeft, ChevronRight, Trash2, Edit, X, Download, Upload, QrCode, Printer } from 'lucide-react';
 import { Item } from '../types';
 import Swal from 'sweetalert2';
 import { QRCodeCanvas } from 'qrcode.react';
@@ -325,6 +325,7 @@ export default function Inventory({ items, setItems }: InventoryProps) {
         const lines = csvText.split('\n');
         
         const newItems: Item[] = [];
+        const seenSkus = new Set<string>();
 
         for (let i = 1; i < lines.length; i++) {
           const line = lines[i].trim();
@@ -344,9 +345,17 @@ export default function Inventory({ items, setItems }: InventoryProps) {
 
           if (values.length >= 4) {
             const stock = parseInt(values[3], 10) || 0;
+            let sku = values[0] || generateSKU(values[2] || '');
+            
+            // Ensure unique SKU within the import file
+            while (seenSkus.has(sku)) {
+              sku = generateSKU(values[2] || '');
+            }
+            seenSkus.add(sku);
+
             newItems.push({
               id: Math.random().toString(36).substr(2, 9),
-              sku: values[0] || generateSKU(values[2] || ''),
+              sku: sku,
               name: values[1] || 'Barang Tidak Diketahui',
               category: values[2] || 'Tanpa Kategori',
               stock,
@@ -369,8 +378,21 @@ export default function Inventory({ items, setItems }: InventoryProps) {
              cancelButtonText: 'Batal',
            }).then((result) => {
              if (result.isConfirmed) {
-               setItems(prev => [...prev, ...newItems]);
-               successSwal.fire('Berhasil!', 'Data barang berhasil ditambahkan.', 'success');
+               setItems(prev => {
+                 const existingSkus = new Set(prev.map(i => i.sku));
+                 const filteredNewItems = newItems.filter(i => !existingSkus.has(i.sku));
+                 const skipped = newItems.length - filteredNewItems.length;
+                 
+                 setTimeout(() => {
+                   if (skipped > 0) {
+                     customSwal.fire('Info', `${filteredNewItems.length} ditambahkan, ${skipped} dilewati karena SKU duplikat.`, 'info');
+                   } else {
+                     successSwal.fire('Berhasil!', 'Data barang berhasil ditambahkan.', 'success');
+                   }
+                 }, 300);
+                 
+                 return [...prev, ...filteredNewItems];
+               });
              } else if (result.isDenied) {
                setItems(newItems);
                successSwal.fire('Berhasil!', 'Data barang berhasil ditimpa.', 'success');
@@ -388,6 +410,69 @@ export default function Inventory({ items, setItems }: InventoryProps) {
       }
     };
     reader.readAsText(file);
+  };
+
+  const handlePrint = () => {
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) return;
+
+    const html = `
+      <html>
+        <head>
+          <title>Laporan Katalog Barang</title>
+          <style>
+            body { font-family: sans-serif; padding: 20px; color: #333; }
+            h1 { text-align: center; margin-bottom: 5px; }
+            p { text-align: center; margin-top: 0; color: #666; margin-bottom: 20px; }
+            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+            th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+            th { background-color: #f2f2f2; }
+            @media print {
+              @page { size: landscape; }
+            }
+          </style>
+        </head>
+        <body>
+          <h1>Laporan Katalog Barang</h1>
+          <p>Tanggal Cetak: ${new Date().toLocaleDateString('id-ID')} | Total Item: ${items.length}</p>
+          <table>
+            <thead>
+              <tr>
+                <th>No</th>
+                <th>SKU</th>
+                <th>Nama Barang</th>
+                <th>Kategori</th>
+                <th>Stok</th>
+                <th>Status</th>
+                <th>Lokasi</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${items.map((item, index) => `
+                <tr>
+                  <td>${index + 1}</td>
+                  <td>${item.sku}</td>
+                  <td>${item.name}</td>
+                  <td>${item.category}</td>
+                  <td>${item.stock}</td>
+                  <td>${item.status}</td>
+                  <td>${item.location || '-'}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+          <script>
+            window.onload = () => {
+              window.print();
+              setTimeout(() => { window.close(); }, 500);
+            };
+          </script>
+        </body>
+      </html>
+    `;
+
+    printWindow.document.write(html);
+    printWindow.document.close();
   };
 
   return (
@@ -418,6 +503,13 @@ export default function Inventory({ items, setItems }: InventoryProps) {
             title="Export CSV"
           >
             <Download size={18} />
+          </button>
+          <button 
+            onClick={handlePrint}
+            className="bg-white/5 hover:bg-white/10 text-white px-4 py-2.5 font-bold font-mono text-sm uppercase transition-all flex items-center gap-2 rounded-xl border border-white/10"
+            title="Cetak Laporan (PDF)"
+          >
+            <Printer size={18} />
           </button>
           <button 
             onClick={openAddModal}
