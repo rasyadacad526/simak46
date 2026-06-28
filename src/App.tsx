@@ -11,7 +11,7 @@ import UsersManagement from './components/UsersManagement';
 
 import { initialItems, initialRepairs, initialBorrows, initialUsers } from './data';
 import { Package, LogOut, Menu, X } from 'lucide-react';
-import { User, Item } from './types';
+import { User, Item, RepairTask, BorrowRecord } from './types';
 
 export default function App() {
   const [authView, setAuthView] = useState<'landing' | 'login' | 'app'>(() => {
@@ -41,6 +41,30 @@ export default function App() {
     const saved = localStorage.getItem('simak46_users');
     return saved ? JSON.parse(saved) : initialUsers;
   });
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  // Load initial data from server
+  useEffect(() => {
+    fetch('/api/data')
+      .then(res => {
+        if (!res.ok) throw new Error('Failed to fetch data');
+        return res.json();
+      })
+      .then(data => {
+        if (data) {
+          if (data.items && data.items.length > 0) setItems(data.items);
+          if (data.repairs && data.repairs.length > 0) setRepairs(data.repairs);
+          if (data.borrows && data.borrows.length > 0) setBorrows(data.borrows);
+          if (data.users && data.users.length > 0) setUsers(data.users);
+        }
+        setIsLoaded(true);
+      })
+      .catch(err => {
+        console.error('Failed to load data from server, using local fallback:', err);
+        setIsLoaded(true);
+      });
+  }, []);
+
   useEffect(() => {
     localStorage.setItem('simak46_authView', authView);
   }, [authView]);
@@ -53,12 +77,25 @@ export default function App() {
     }
   }, [currentUser]);
 
+  // Save to localStorage and server when data changes and isLoaded is true
   useEffect(() => {
+    if (!isLoaded) return;
+
     localStorage.setItem('simak46_items', JSON.stringify(items));
     localStorage.setItem('simak46_repairs', JSON.stringify(repairs));
     localStorage.setItem('simak46_borrows', JSON.stringify(borrows));
     localStorage.setItem('simak46_users', JSON.stringify(users));
-  }, [items, repairs, borrows, users]);
+
+    fetch('/api/data', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ items, repairs, borrows, users }),
+    }).catch(err => {
+      console.error('Failed to save data to server:', err);
+    });
+  }, [items, repairs, borrows, users, isLoaded]);
 
   const handleLogout = () => {
     setCurrentUser(null);

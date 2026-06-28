@@ -3,15 +3,43 @@ import path from "path";
 import { createServer as createViteServer } from "vite";
 import fs from "fs";
 
-// Initialize data
-let appData = {
-  items: [],
-  repairs: [],
-  borrows: [],
-  users: []
-};
+const DATA_FILE = path.join(process.cwd(), "data.json");
 
-// We can seed it with the default data from data.ts, but let's just use what the client sends.
+function loadData() {
+  try {
+    if (fs.existsSync(DATA_FILE)) {
+      const content = fs.readFileSync(DATA_FILE, "utf-8");
+      return JSON.parse(content);
+    }
+  } catch (error) {
+    console.error("Failed to load data from file:", error);
+  }
+  return {
+    items: [],
+    repairs: [],
+    borrows: [],
+    users: []
+  };
+}
+
+function saveData(data: any) {
+  try {
+    fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2), "utf-8");
+  } catch (error) {
+    console.error("Failed to save data to file:", error);
+  }
+}
+
+let appData = loadData();
+
+// Seed default users if none exist
+if (!appData.users || appData.users.length === 0) {
+  appData.users = [
+    { id: '1', name: 'Admin Utama', email: 'admin@simak46.com', password: 'password123', role: 'Admin', createdAt: new Date().toISOString() },
+    { id: '2', name: 'Staff Gudang', email: 'staff@simak46.com', password: 'password123', role: 'Staff', createdAt: new Date().toISOString() },
+  ];
+  saveData(appData);
+}
 
 async function startServer() {
   const app = express();
@@ -30,6 +58,7 @@ async function startServer() {
 
   app.post("/api/data", (req, res) => {
     appData = { ...appData, ...req.body };
+    saveData(appData);
     res.json({ success: true });
   });
 
