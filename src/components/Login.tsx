@@ -45,7 +45,7 @@ export default function Login({ onLogin, onBack, users }: LoginProps) {
             className="text-slate-400 hover:text-white flex items-center gap-2 text-sm font-mono mb-8 transition-colors"
           >
             <ArrowLeft size={16} />
-            BACK
+            KEMBALI
           </button>
 
           <div className="flex flex-col items-center mb-10 relative">
@@ -54,7 +54,7 @@ export default function Login({ onLogin, onBack, users }: LoginProps) {
                <Package size={32} className="text-white" />
             </div>
             <h2 className="text-3xl font-display font-bold text-white uppercase tracking-wider text-gradient">SIMAK 46</h2>
-            <p className="text-xs font-mono font-medium mt-2 text-slate-400 uppercase tracking-[0.2em]">Secure Access</p>
+            <p className="text-xs font-mono font-medium mt-2 text-slate-400 uppercase tracking-[0.2em]">Akses Aman</p>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-6">
@@ -71,7 +71,7 @@ export default function Login({ onLogin, onBack, users }: LoginProps) {
             </div>
             
             <div>
-              <label className="block text-xs font-mono font-medium text-slate-400 mb-2 uppercase tracking-wider">Passcode</label>
+              <label className="block text-xs font-mono font-medium text-slate-400 mb-2 uppercase tracking-wider">Kata Sandi</label>
               <div className="relative">
                 <input 
                   type={showPassword ? "text" : "password"}
@@ -95,7 +95,7 @@ export default function Login({ onLogin, onBack, users }: LoginProps) {
               type="submit"
               className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white py-4 rounded-xl font-display font-bold text-lg mt-8 transition-all shadow-[0_0_20px_rgba(139,92,246,0.4)] hover:shadow-[0_0_30px_rgba(139,92,246,0.6)] uppercase tracking-wider border border-white/10"
             >
-              Authenticate
+              MASUK
             </button>
           </form>
         </div>

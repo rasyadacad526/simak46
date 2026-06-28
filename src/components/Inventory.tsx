@@ -347,8 +347,8 @@ export default function Inventory({ items, setItems }: InventoryProps) {
             newItems.push({
               id: Math.random().toString(36).substr(2, 9),
               sku: values[0] || generateSKU(values[2] || ''),
-              name: values[1] || 'Unknown Item',
-              category: values[2] || 'Uncategorized',
+              name: values[1] || 'Barang Tidak Diketahui',
+              category: values[2] || 'Tanpa Kategori',
               stock,
               status: stock === 0 ? 'Habis' : (stock <= 5 ? 'Stok Menipis' : 'Tersedia'),
               location: values[5] || 'Gudang',

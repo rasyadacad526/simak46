@@ -50,7 +50,7 @@ export default function Landing({ onLoginClick, items, repairs, borrows }: Landi
           onClick={onLoginClick}
           className="bg-white/10 hover:bg-white/20 text-white px-6 py-2 rounded-full font-mono font-medium text-sm transition-all border border-white/20 hover:border-white/40 hover:shadow-[0_0_15px_rgba(255,255,255,0.2)]"
         >
-          LOGIN
+          MASUK
         </button>
       </header>
 
@@ -70,7 +70,7 @@ export default function Landing({ onLoginClick, items, repairs, borrows }: Landi
           <div className="mb-6 flex justify-between items-end border-b border-white/10 pb-4">
              <div>
                <h3 className="text-xl font-display font-bold text-white uppercase tracking-wider">Aktivitas Sistem</h3>
-               <p className="text-sm font-mono text-slate-400 mt-1">Real-time metrics</p>
+               <p className="text-sm font-mono text-slate-400 mt-1">Metrik Real-time</p>
              </div>
           </div>
           <div className="h-[300px] w-full">
