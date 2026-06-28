@@ -25,38 +25,55 @@ export default function App() {
   });
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   
-  const [items, setItems] = useState<Item[]>(() => {
-    try {
-      const saved = localStorage.getItem('simak46_items');
-      return saved ? JSON.parse(saved) : initialItems;
-    } catch {
-      return initialItems;
-    }
-  });
-  const [repairs, setRepairs] = useState(() => {
-    try {
-      const saved = localStorage.getItem('simak46_repairs');
-      return saved ? JSON.parse(saved) : initialRepairs;
-    } catch {
-      return initialRepairs;
-    }
-  });
-  const [borrows, setBorrows] = useState(() => {
-    try {
-      const saved = localStorage.getItem('simak46_borrows');
-      return saved ? JSON.parse(saved) : initialBorrows;
-    } catch {
-      return initialBorrows;
-    }
-  });
-  const [users, setUsers] = useState(() => {
-    try {
-      const saved = localStorage.getItem('simak46_users');
-      return saved ? JSON.parse(saved) : initialUsers;
-    } catch {
-      return initialUsers;
-    }
-  });
+  const [items, setItems] = useState<Item[]>(initialItems);
+  const [repairs, setRepairs] = useState(initialRepairs);
+  const [borrows, setBorrows] = useState(initialBorrows);
+  const [users, setUsers] = useState(initialUsers);
+  const [isDataLoaded, setIsDataLoaded] = useState(false);
+
+  useEffect(() => {
+    fetch('/api/data')
+      .then(res => res.json())
+      .then(data => {
+        if (data.items?.length > 0) setItems(data.items);
+        else {
+          try {
+            const saved = localStorage.getItem('simak46_items');
+            if (saved) setItems(JSON.parse(saved));
+          } catch {}
+        }
+        
+        if (data.repairs?.length > 0) setRepairs(data.repairs);
+        else {
+          try {
+            const saved = localStorage.getItem('simak46_repairs');
+            if (saved) setRepairs(JSON.parse(saved));
+          } catch {}
+        }
+        
+        if (data.borrows?.length > 0) setBorrows(data.borrows);
+        else {
+          try {
+            const saved = localStorage.getItem('simak46_borrows');
+            if (saved) setBorrows(JSON.parse(saved));
+          } catch {}
+        }
+
+        if (data.users?.length > 0) setUsers(data.users);
+        else {
+          try {
+            const saved = localStorage.getItem('simak46_users');
+            if (saved) setUsers(JSON.parse(saved));
+          } catch {}
+        }
+        
+        setIsDataLoaded(true);
+      })
+      .catch(err => {
+        console.error('Failed to load data', err);
+        setIsDataLoaded(true);
+      });
+  }, []);
 
   useEffect(() => {
     localStorage.setItem('simak46_authView', authView);
@@ -71,20 +88,18 @@ export default function App() {
   }, [currentUser]);
 
   useEffect(() => {
+    if (!isDataLoaded) return;
+    fetch('/api/data', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ items, repairs, borrows, users })
+    }).catch(console.error);
+
     localStorage.setItem('simak46_items', JSON.stringify(items));
-  }, [items]);
-
-  useEffect(() => {
     localStorage.setItem('simak46_repairs', JSON.stringify(repairs));
-  }, [repairs]);
-
-  useEffect(() => {
     localStorage.setItem('simak46_borrows', JSON.stringify(borrows));
-  }, [borrows]);
-
-  useEffect(() => {
     localStorage.setItem('simak46_users', JSON.stringify(users));
-  }, [users]);
+  }, [items, repairs, borrows, users, isDataLoaded]);
 
   const handleLogout = () => {
     setCurrentUser(null);
@@ -150,8 +165,8 @@ export default function App() {
             {activeTab === 'dashboard' && <Dashboard items={items} repairs={repairs} borrows={borrows} />}
             {activeTab === 'inventory' && <Inventory items={items} setItems={setItems} />}
             {activeTab === 'scanner' && <Scanner items={items} />}
-            {activeTab === 'repairs' && <Repairs repairs={repairs} />}
-            {activeTab === 'borrowing' && <Borrowing borrows={borrows} />}
+            {activeTab === 'repairs' && <Repairs items={items} repairs={repairs} setRepairs={setRepairs} />}
+            {activeTab === 'borrowing' && <Borrowing items={items} borrows={borrows} setBorrows={setBorrows} />}
             {activeTab === 'users' && currentUser?.role === 'Admin' && <UsersManagement users={users} setUsers={setUsers} currentUser={currentUser} />}
           </div>
         </main>
