@@ -25,56 +25,22 @@ export default function App() {
   });
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   
-  const [items, setItems] = useState<Item[]>(initialItems);
-  const [repairs, setRepairs] = useState(initialRepairs);
-  const [borrows, setBorrows] = useState(initialBorrows);
-  const [users, setUsers] = useState(initialUsers);
-  const [isDataLoaded, setIsDataLoaded] = useState(false);
-
-  useEffect(() => {
-    fetch('/api/data')
-      .then(res => res.json())
-      .then(data => {
-        if (data.items?.length > 0) setItems(data.items);
-        else {
-          try {
-            const saved = localStorage.getItem('simak46_items');
-            if (saved) setItems(JSON.parse(saved));
-          } catch {}
-        }
-        
-        if (data.repairs?.length > 0) setRepairs(data.repairs);
-        else {
-          try {
-            const saved = localStorage.getItem('simak46_repairs');
-            if (saved) setRepairs(JSON.parse(saved));
-          } catch {}
-        }
-        
-        if (data.borrows?.length > 0) setBorrows(data.borrows);
-        else {
-          try {
-            const saved = localStorage.getItem('simak46_borrows');
-            if (saved) setBorrows(JSON.parse(saved));
-          } catch {}
-        }
-
-        if (data.users?.length > 0) setUsers(data.users);
-        else {
-          try {
-            const saved = localStorage.getItem('simak46_users');
-            if (saved) setUsers(JSON.parse(saved));
-          } catch {}
-        }
-        
-        setIsDataLoaded(true);
-      })
-      .catch(err => {
-        console.error('Failed to load data', err);
-        setIsDataLoaded(true);
-      });
-  }, []);
-
+  const [items, setItems] = useState<Item[]>(() => {
+    const saved = localStorage.getItem('simak46_items');
+    return saved ? JSON.parse(saved) : initialItems;
+  });
+  const [repairs, setRepairs] = useState<RepairTask[]>(() => {
+    const saved = localStorage.getItem('simak46_repairs');
+    return saved ? JSON.parse(saved) : initialRepairs;
+  });
+  const [borrows, setBorrows] = useState<BorrowRecord[]>(() => {
+    const saved = localStorage.getItem('simak46_borrows');
+    return saved ? JSON.parse(saved) : initialBorrows;
+  });
+  const [users, setUsers] = useState<User[]>(() => {
+    const saved = localStorage.getItem('simak46_users');
+    return saved ? JSON.parse(saved) : initialUsers;
+  });
   useEffect(() => {
     localStorage.setItem('simak46_authView', authView);
   }, [authView]);
@@ -88,18 +54,11 @@ export default function App() {
   }, [currentUser]);
 
   useEffect(() => {
-    if (!isDataLoaded) return;
-    fetch('/api/data', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ items, repairs, borrows, users })
-    }).catch(console.error);
-
     localStorage.setItem('simak46_items', JSON.stringify(items));
     localStorage.setItem('simak46_repairs', JSON.stringify(repairs));
     localStorage.setItem('simak46_borrows', JSON.stringify(borrows));
     localStorage.setItem('simak46_users', JSON.stringify(users));
-  }, [items, repairs, borrows, users, isDataLoaded]);
+  }, [items, repairs, borrows, users]);
 
   const handleLogout = () => {
     setCurrentUser(null);
@@ -115,7 +74,7 @@ export default function App() {
   }
 
   return (
-    <div className="flex flex-col h-screen bg-gradient-mesh font-sans overflow-hidden text-slate-200 selection:bg-purple-500/30 selection:text-white relative">
+    <div className="flex flex-col h-[100dvh] bg-gradient-mesh font-sans overflow-hidden text-slate-200 selection:bg-purple-500/30 selection:text-white relative">
       <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/10 via-transparent to-pink-500/10 pointer-events-none -z-10"></div>
       <header className="h-16 flex items-center justify-between px-4 sm:px-6 glass-panel shrink-0 z-20 border-b border-white/10 relative">
         <div className="flex items-center gap-3">

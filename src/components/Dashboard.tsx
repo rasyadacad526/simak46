@@ -16,7 +16,7 @@ export default function Dashboard({ items, repairs, borrows }: DashboardProps) {
 
   return (
     <div className="space-y-8">
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <div className="glass-card rounded-2xl p-6 group">
           <p className="text-xs font-mono font-medium text-slate-400 uppercase tracking-wider mb-3">Total Barang</p>
           <p className="text-5xl font-display font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">{totalItems}</p>
