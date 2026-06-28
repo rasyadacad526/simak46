@@ -26,20 +26,36 @@ export default function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   
   const [items, setItems] = useState<Item[]>(() => {
-    const saved = localStorage.getItem('simak46_items');
-    return saved ? JSON.parse(saved) : initialItems;
+    try {
+      const saved = localStorage.getItem('simak46_items');
+      return saved ? JSON.parse(saved) : initialItems;
+    } catch {
+      return initialItems;
+    }
   });
   const [repairs, setRepairs] = useState(() => {
-    const saved = localStorage.getItem('simak46_repairs');
-    return saved ? JSON.parse(saved) : initialRepairs;
+    try {
+      const saved = localStorage.getItem('simak46_repairs');
+      return saved ? JSON.parse(saved) : initialRepairs;
+    } catch {
+      return initialRepairs;
+    }
   });
   const [borrows, setBorrows] = useState(() => {
-    const saved = localStorage.getItem('simak46_borrows');
-    return saved ? JSON.parse(saved) : initialBorrows;
+    try {
+      const saved = localStorage.getItem('simak46_borrows');
+      return saved ? JSON.parse(saved) : initialBorrows;
+    } catch {
+      return initialBorrows;
+    }
   });
   const [users, setUsers] = useState(() => {
-    const saved = localStorage.getItem('simak46_users');
-    return saved ? JSON.parse(saved) : initialUsers;
+    try {
+      const saved = localStorage.getItem('simak46_users');
+      return saved ? JSON.parse(saved) : initialUsers;
+    } catch {
+      return initialUsers;
+    }
   });
 
   useEffect(() => {

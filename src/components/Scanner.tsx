@@ -28,6 +28,11 @@ export default function Scanner({ items }: ScannerProps) {
     };
   }, []);
 
+  const itemsRef = useRef(items);
+  useEffect(() => {
+    itemsRef.current = items;
+  }, [items]);
+
   // Try to list cameras on mount or when mode changes to camera
   useEffect(() => {
     if (activeMode === 'camera') {
@@ -88,10 +93,11 @@ export default function Scanner({ items }: ScannerProps) {
         },
         (decodedText) => {
           // Success
-          setScannedSku(decodedText);
-          const found = items.find(i => 
-            i.sku.toLowerCase() === decodedText.toLowerCase() || 
-            i.sku.replace(/[-\s]/g, '').toLowerCase() === decodedText.replace(/[-\s]/g, '').toLowerCase()
+          const cleanText = decodedText.trim();
+          setScannedSku(cleanText);
+          const found = itemsRef.current.find(i => 
+            i.sku.toLowerCase() === cleanText.toLowerCase() || 
+            i.sku.replace(/[-\s]/g, '').toLowerCase() === cleanText.replace(/[-\s]/g, '').toLowerCase()
           );
           setScannedItem(found || null);
           
@@ -127,9 +133,10 @@ export default function Scanner({ items }: ScannerProps) {
   const handleManualSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (!scannedSku) return;
+    const cleanText = scannedSku.trim();
     const found = items.find(i => 
-      i.sku.toLowerCase() === scannedSku.toLowerCase() || 
-      i.sku.replace(/[-\s]/g, '').toLowerCase() === scannedSku.replace(/[-\s]/g, '').toLowerCase()
+      i.sku.toLowerCase() === cleanText.toLowerCase() || 
+      i.sku.replace(/[-\s]/g, '').toLowerCase() === cleanText.replace(/[-\s]/g, '').toLowerCase()
     );
     setScannedItem(found || null);
   };
