@@ -23,6 +23,7 @@ export default function Borrowing({ borrows, setBorrows, items }: BorrowingProps
     borrowerName: '',
     status: 'Dipinjam' as BorrowRecord['status'],
     returnDate: '',
+    borrowDate: new Date().toISOString().split('T')[0],
   });
 
   const filteredBorrows = useMemo(() => {
@@ -136,7 +137,13 @@ export default function Borrowing({ borrows, setBorrows, items }: BorrowingProps
 
   const openAddModal = () => {
     setEditingBorrow(null);
-    setFormData({ itemId: '', borrowerName: '', status: 'Dipinjam', returnDate: '' });
+    setFormData({ 
+      itemId: '', 
+      borrowerName: '', 
+      status: 'Dipinjam', 
+      returnDate: '',
+      borrowDate: new Date().toISOString().split('T')[0],
+    });
     setIsModalOpen(true);
   };
 
@@ -147,6 +154,7 @@ export default function Borrowing({ borrows, setBorrows, items }: BorrowingProps
       borrowerName: borrow.borrowerName,
       status: borrow.status,
       returnDate: borrow.returnDate ? new Date(borrow.returnDate).toISOString().split('T')[0] : '',
+      borrowDate: borrow.borrowDate ? new Date(borrow.borrowDate).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
     });
     setIsModalOpen(true);
   };
@@ -167,8 +175,11 @@ export default function Borrowing({ borrows, setBorrows, items }: BorrowingProps
         b.id === editingBorrow.id 
           ? { 
               ...b, 
-              ...formData, 
+              itemId: formData.itemId,
+              borrowerName: formData.borrowerName,
+              status: formData.status,
               itemName, 
+              borrowDate: formData.borrowDate ? new Date(formData.borrowDate).toISOString() : b.borrowDate,
               returnDate: formData.returnDate ? new Date(formData.returnDate).toISOString() : undefined 
             }
           : b
@@ -181,7 +192,7 @@ export default function Borrowing({ borrows, setBorrows, items }: BorrowingProps
         itemName,
         borrowerName: formData.borrowerName,
         status: formData.status,
-        borrowDate: new Date().toISOString(),
+        borrowDate: formData.borrowDate ? new Date(formData.borrowDate).toISOString() : new Date().toISOString(),
         returnDate: formData.returnDate ? new Date(formData.returnDate).toISOString() : undefined
       };
       setBorrows(prev => [newBorrow, ...prev]);
@@ -451,6 +462,15 @@ export default function Borrowing({ borrows, setBorrows, items }: BorrowingProps
                     </option>
                   ))}
                 </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-mono font-medium text-slate-400 mb-2 uppercase tracking-wider">Tanggal Pinjam</label>
+                <input 
+                  type="date" required
+                  className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl font-mono text-sm focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 transition-all text-white placeholder-slate-500"
+                  value={formData.borrowDate} onChange={e => setFormData({...formData, borrowDate: e.target.value})}
+                />
               </div>
 
               {editingBorrow && (
