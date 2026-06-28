@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { Package, Users, Wrench } from 'lucide-react';
+import { Package, Users, Wrench, Search } from 'lucide-react';
 import { Item, RepairTask, BorrowRecord } from '../types';
 
 interface LandingProps {
@@ -12,6 +12,34 @@ interface LandingProps {
 
 export default function Landing({ onLoginClick, items, repairs, borrows }: LandingProps) {
   const [data, setData] = useState<any[]>([]);
+  const [searchItems, setSearchItems] = useState('');
+  const [searchBorrows, setSearchBorrows] = useState('');
+  const [searchRepairs, setSearchRepairs] = useState('');
+
+  const filteredItems = useMemo(() => {
+    return items.filter(item => 
+      item.name.toLowerCase().includes(searchItems.toLowerCase()) ||
+      item.sku.toLowerCase().includes(searchItems.toLowerCase()) ||
+      item.category.toLowerCase().includes(searchItems.toLowerCase()) ||
+      item.location.toLowerCase().includes(searchItems.toLowerCase())
+    );
+  }, [items, searchItems]);
+
+  const filteredBorrows = useMemo(() => {
+    return borrows.filter(record => 
+      record.borrowerName.toLowerCase().includes(searchBorrows.toLowerCase()) ||
+      record.itemName.toLowerCase().includes(searchBorrows.toLowerCase()) ||
+      record.status.toLowerCase().includes(searchBorrows.toLowerCase())
+    );
+  }, [borrows, searchBorrows]);
+
+  const filteredRepairs = useMemo(() => {
+    return repairs.filter(repair => 
+      repair.itemName.toLowerCase().includes(searchRepairs.toLowerCase()) ||
+      repair.description.toLowerCase().includes(searchRepairs.toLowerCase()) ||
+      repair.status.toLowerCase().includes(searchRepairs.toLowerCase())
+    );
+  }, [repairs, searchRepairs]);
 
   useEffect(() => {
     const initialData = Array.from({ length: 20 }, (_, i) => ({
@@ -102,13 +130,25 @@ export default function Landing({ onLoginClick, items, repairs, borrows }: Landi
 
         <div className="flex flex-col gap-8 w-full max-w-5xl mb-12">
            <div className="glass-card rounded-2xl overflow-hidden flex flex-col">
-             <div className="p-6 border-b border-white/10 flex items-center gap-4 bg-white/5">
-                <div className="p-3 bg-blue-500/20 text-blue-400 rounded-xl">
-                  <Package size={24} />
+             <div className="p-6 border-b border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white/5">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 bg-blue-500/20 text-blue-400 rounded-xl">
+                    <Package size={24} />
+                  </div>
+                  <div>
+                    <h4 className="font-display font-bold text-white uppercase tracking-wider">Katalog Barang</h4>
+                    <p className="text-xs font-mono text-slate-400 mt-1">{items.length} TOTAL ASET</p>
+                  </div>
                 </div>
-                <div>
-                  <h4 className="font-display font-bold text-white uppercase tracking-wider">Katalog Barang</h4>
-                  <p className="text-xs font-mono text-slate-400 mt-1">{items.length} TOTAL ASET</p>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+                  <input
+                    type="text"
+                    placeholder="Cari barang..."
+                    className="w-full sm:w-64 pl-10 pr-4 py-2 bg-black/20 border border-white/10 rounded-xl font-mono text-sm focus:outline-none focus:border-blue-500/50 text-white placeholder-slate-500"
+                    value={searchItems}
+                    onChange={(e) => setSearchItems(e.target.value)}
+                  />
                 </div>
              </div>
              <div className="overflow-x-auto max-h-96 overflow-y-auto">
@@ -123,7 +163,7 @@ export default function Landing({ onLoginClick, items, repairs, borrows }: Landi
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-white/5 text-sm">
-                    {items.map(item => (
+                    {filteredItems.map(item => (
                        <tr key={item.id} className="hover:bg-white/5 transition-colors">
                          <td className="p-4 text-slate-400 font-mono text-xs">{item.sku}</td>
                          <td className="p-4 text-white font-medium">{item.name}</td>
@@ -138,7 +178,7 @@ export default function Landing({ onLoginClick, items, repairs, borrows }: Landi
                          <td className="p-4 text-slate-400">{item.location}</td>
                        </tr>
                     ))}
-                    {items.length === 0 && (
+                    {filteredItems.length === 0 && (
                       <tr><td colSpan={5} className="p-8 text-center text-slate-500 font-mono text-xs uppercase tracking-wider">Tidak ada barang</td></tr>
                     )}
                   </tbody>
@@ -147,13 +187,25 @@ export default function Landing({ onLoginClick, items, repairs, borrows }: Landi
            </div>
 
            <div className="glass-card rounded-2xl overflow-hidden flex flex-col">
-             <div className="p-6 border-b border-white/10 flex items-center gap-4 bg-white/5">
-                <div className="p-3 bg-purple-500/20 text-purple-400 rounded-xl">
-                  <Users size={24} />
+             <div className="p-6 border-b border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white/5">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 bg-purple-500/20 text-purple-400 rounded-xl">
+                    <Users size={24} />
+                  </div>
+                  <div>
+                    <h4 className="font-display font-bold text-white uppercase tracking-wider">Peminjam Aktif</h4>
+                    <p className="text-xs font-mono text-slate-400 mt-1">{borrows.filter(b => b.status === 'Dipinjam').length} AKTIF</p>
+                  </div>
                 </div>
-                <div>
-                  <h4 className="font-display font-bold text-white uppercase tracking-wider">Peminjam Aktif</h4>
-                  <p className="text-xs font-mono text-slate-400 mt-1">{borrows.filter(b => b.status === 'Dipinjam').length} AKTIF</p>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+                  <input
+                    type="text"
+                    placeholder="Cari peminjam..."
+                    className="w-full sm:w-64 pl-10 pr-4 py-2 bg-black/20 border border-white/10 rounded-xl font-mono text-sm focus:outline-none focus:border-purple-500/50 text-white placeholder-slate-500"
+                    value={searchBorrows}
+                    onChange={(e) => setSearchBorrows(e.target.value)}
+                  />
                 </div>
              </div>
              <div className="overflow-x-auto max-h-96 overflow-y-auto">
@@ -167,7 +219,7 @@ export default function Landing({ onLoginClick, items, repairs, borrows }: Landi
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-white/5 text-sm">
-                    {borrows.map(record => (
+                    {filteredBorrows.map(record => (
                        <tr key={record.id} className="hover:bg-white/5 transition-colors">
                          <td className="p-4 text-white font-medium">{record.borrowerName}</td>
                          <td className="p-4 text-slate-300">{record.itemName}</td>
@@ -181,7 +233,7 @@ export default function Landing({ onLoginClick, items, repairs, borrows }: Landi
                          </td>
                        </tr>
                     ))}
-                    {borrows.length === 0 && (
+                    {filteredBorrows.length === 0 && (
                       <tr><td colSpan={4} className="p-8 text-center text-slate-500 font-mono text-xs uppercase tracking-wider">TIDAK ADA PEMINJAMAN</td></tr>
                     )}
                   </tbody>
@@ -190,13 +242,25 @@ export default function Landing({ onLoginClick, items, repairs, borrows }: Landi
            </div>
 
            <div className="glass-card rounded-2xl overflow-hidden flex flex-col">
-             <div className="p-6 border-b border-white/10 flex items-center gap-4 bg-white/5">
-                <div className="p-3 bg-pink-500/20 text-pink-400 rounded-xl">
-                  <Wrench size={24} />
+             <div className="p-6 border-b border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white/5">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 bg-pink-500/20 text-pink-400 rounded-xl">
+                    <Wrench size={24} />
+                  </div>
+                  <div>
+                    <h4 className="font-display font-bold text-white uppercase tracking-wider">Perbaikan</h4>
+                    <p className="text-xs font-mono text-slate-400 mt-1">{repairs.filter(r => r.status !== 'Selesai').length} MENUNGGU</p>
+                  </div>
                 </div>
-                <div>
-                  <h4 className="font-display font-bold text-white uppercase tracking-wider">Perbaikan</h4>
-                  <p className="text-xs font-mono text-slate-400 mt-1">{repairs.filter(r => r.status !== 'Selesai').length} MENUNGGU</p>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+                  <input
+                    type="text"
+                    placeholder="Cari perbaikan..."
+                    className="w-full sm:w-64 pl-10 pr-4 py-2 bg-black/20 border border-white/10 rounded-xl font-mono text-sm focus:outline-none focus:border-pink-500/50 text-white placeholder-slate-500"
+                    value={searchRepairs}
+                    onChange={(e) => setSearchRepairs(e.target.value)}
+                  />
                 </div>
              </div>
              <div className="overflow-x-auto max-h-96 overflow-y-auto">
@@ -210,7 +274,7 @@ export default function Landing({ onLoginClick, items, repairs, borrows }: Landi
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-white/5 text-sm">
-                    {repairs.map(repair => (
+                    {filteredRepairs.map(repair => (
                        <tr key={repair.id} className="hover:bg-white/5 transition-colors">
                          <td className="p-4 text-white font-medium">{repair.itemName}</td>
                          <td className="p-4 text-slate-400 font-mono text-xs">{new Date(repair.dateReported).toLocaleDateString('id-ID')}</td>
@@ -226,7 +290,7 @@ export default function Landing({ onLoginClick, items, repairs, borrows }: Landi
                          </td>
                        </tr>
                     ))}
-                    {repairs.length === 0 && (
+                    {filteredRepairs.length === 0 && (
                       <tr><td colSpan={4} className="p-8 text-center text-slate-500 font-mono text-xs uppercase tracking-wider">SEMUA SISTEM AMAN</td></tr>
                     )}
                   </tbody>
