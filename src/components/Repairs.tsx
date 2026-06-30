@@ -23,6 +23,7 @@ export default function Repairs({ repairs, setRepairs, items }: RepairsProps) {
     description: '',
     status: 'Menunggu' as RepairTask['status'],
     dateStarted: '',
+    dateReported: '',
   });
 
   const filteredRepairs = useMemo(() => {
@@ -140,7 +141,8 @@ export default function Repairs({ repairs, setRepairs, items }: RepairsProps) {
       itemId: '', 
       description: '', 
       status: 'Menunggu', 
-      dateStarted: new Date().toISOString().split('T')[0] 
+      dateStarted: new Date().toISOString().split('T')[0],
+      dateReported: new Date().toISOString().split('T')[0]
     });
     setIsModalOpen(true);
   };
@@ -152,6 +154,7 @@ export default function Repairs({ repairs, setRepairs, items }: RepairsProps) {
       description: repair.description,
       status: repair.status,
       dateStarted: repair.dateStarted ? new Date(repair.dateStarted).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+      dateReported: repair.dateReported ? new Date(repair.dateReported).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
     });
     setIsModalOpen(true);
   };
@@ -176,7 +179,8 @@ export default function Repairs({ repairs, setRepairs, items }: RepairsProps) {
               description: formData.description,
               status: formData.status,
               itemName,
-              dateStarted: formData.dateStarted ? new Date(formData.dateStarted).toISOString() : undefined
+              dateStarted: formData.dateStarted ? new Date(formData.dateStarted).toISOString() : undefined,
+              dateReported: formData.dateReported ? new Date(formData.dateReported).toISOString() : repair.dateReported,
             }
           : repair
       ));
@@ -188,7 +192,7 @@ export default function Repairs({ repairs, setRepairs, items }: RepairsProps) {
         itemName,
         description: formData.description,
         status: formData.status,
-        dateReported: new Date().toISOString(),
+        dateReported: formData.dateReported ? new Date(formData.dateReported).toISOString() : new Date().toISOString(),
         dateStarted: formData.dateStarted ? new Date(formData.dateStarted).toISOString() : new Date().toISOString()
       };
       setRepairs(prev => [newRepair, ...prev]);
@@ -437,6 +441,17 @@ export default function Repairs({ repairs, setRepairs, items }: RepairsProps) {
                   onChange={e => setFormData({...formData, description: e.target.value})}
                   placeholder="Deskripsikan kerusakan..."
                 ></textarea>
+              </div>
+
+              <div>
+                <label className="block text-xs font-mono font-medium text-slate-400 mb-2 uppercase tracking-wider">Tanggal Lapor</label>
+                <input 
+                  type="date" 
+                  required
+                  className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl font-mono text-sm focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 transition-all text-white placeholder-slate-500"
+                  value={formData.dateReported} 
+                  onChange={e => setFormData({...formData, dateReported: e.target.value})}
+                />
               </div>
 
               <div>
