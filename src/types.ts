@@ -16,6 +16,7 @@ export interface RepairTask {
   description: string;
   status: 'Menunggu' | 'Dikerjakan' | 'Selesai';
   dateReported: string;
+  dateStarted?: string;
 }
 
 export interface BorrowRecord {

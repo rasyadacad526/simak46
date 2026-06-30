@@ -22,6 +22,7 @@ export default function Repairs({ repairs, setRepairs, items }: RepairsProps) {
     itemId: '',
     description: '',
     status: 'Menunggu' as RepairTask['status'],
+    dateStarted: '',
   });
 
   const filteredRepairs = useMemo(() => {
@@ -135,7 +136,12 @@ export default function Repairs({ repairs, setRepairs, items }: RepairsProps) {
 
   const openAddModal = () => {
     setEditingRepair(null);
-    setFormData({ itemId: '', description: '', status: 'Menunggu' });
+    setFormData({ 
+      itemId: '', 
+      description: '', 
+      status: 'Menunggu', 
+      dateStarted: new Date().toISOString().split('T')[0] 
+    });
     setIsModalOpen(true);
   };
 
@@ -145,6 +151,7 @@ export default function Repairs({ repairs, setRepairs, items }: RepairsProps) {
       itemId: repair.itemId,
       description: repair.description,
       status: repair.status,
+      dateStarted: repair.dateStarted ? new Date(repair.dateStarted).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
     });
     setIsModalOpen(true);
   };
@@ -163,7 +170,14 @@ export default function Repairs({ repairs, setRepairs, items }: RepairsProps) {
     if (editingRepair) {
       setRepairs(prev => prev.map(repair => 
         repair.id === editingRepair.id 
-          ? { ...repair, ...formData, itemName }
+          ? { 
+              ...repair, 
+              itemId: formData.itemId,
+              description: formData.description,
+              status: formData.status,
+              itemName,
+              dateStarted: formData.dateStarted ? new Date(formData.dateStarted).toISOString() : undefined
+            }
           : repair
       ));
       successSwal.fire({ title: 'Tersimpan!', text: 'Perubahan berhasil disimpan.', icon: 'success', confirmButtonText: 'OK' });
@@ -174,7 +188,8 @@ export default function Repairs({ repairs, setRepairs, items }: RepairsProps) {
         itemName,
         description: formData.description,
         status: formData.status,
-        dateReported: new Date().toISOString()
+        dateReported: new Date().toISOString(),
+        dateStarted: formData.dateStarted ? new Date(formData.dateStarted).toISOString() : new Date().toISOString()
       };
       setRepairs(prev => [newRepair, ...prev]);
       successSwal.fire({ title: 'Berhasil!', text: 'Tiket baru ditambahkan.', icon: 'success', confirmButtonText: 'OK' });
@@ -212,6 +227,7 @@ export default function Repairs({ repairs, setRepairs, items }: RepairsProps) {
                 <th>Nama Barang</th>
                 <th>Masalah</th>
                 <th>Tanggal Dilaporkan</th>
+                <th>Awal Perbaikan</th>
                 <th>Status</th>
               </tr>
             </thead>
@@ -222,6 +238,7 @@ export default function Repairs({ repairs, setRepairs, items }: RepairsProps) {
                   <td>${repair.itemName}</td>
                   <td>${repair.description}</td>
                   <td>${new Date(repair.dateReported).toLocaleDateString('id-ID')}</td>
+                  <td>${repair.dateStarted ? new Date(repair.dateStarted).toLocaleDateString('id-ID') : '-'}</td>
                   <td>${repair.status}</td>
                 </tr>
               `).join('')}
@@ -305,7 +322,8 @@ export default function Repairs({ repairs, setRepairs, items }: RepairsProps) {
                   </th>
                   <th className="py-4 px-6 font-mono font-medium text-slate-400 uppercase tracking-wider text-xs">Nama Barang</th>
                   <th className="py-4 px-6 font-mono font-medium text-slate-400 uppercase tracking-wider text-xs">Masalah</th>
-                  <th className="py-4 px-6 font-mono font-medium text-slate-400 uppercase tracking-wider text-xs">Tanggal</th>
+                  <th className="py-4 px-6 font-mono font-medium text-slate-400 uppercase tracking-wider text-xs">Tanggal Lapor</th>
+                  <th className="py-4 px-6 font-mono font-medium text-slate-400 uppercase tracking-wider text-xs">Awal Perbaikan</th>
                   <th className="py-4 px-6 font-mono font-medium text-slate-400 uppercase tracking-wider text-xs">Status</th>
                   <th className="py-4 px-6 font-mono font-medium text-slate-400 uppercase tracking-wider text-xs text-right">Aksi</th>
                 </tr>
@@ -324,6 +342,7 @@ export default function Repairs({ repairs, setRepairs, items }: RepairsProps) {
                     <td className="py-4 px-6 font-medium text-slate-200">{repair.itemName}</td>
                     <td className="py-4 px-6 text-slate-400 max-w-xs truncate">{repair.description}</td>
                     <td className="py-4 px-6 font-mono text-slate-500">{new Date(repair.dateReported).toLocaleDateString('id-ID')}</td>
+                    <td className="py-4 px-6 font-mono text-slate-500">{repair.dateStarted ? new Date(repair.dateStarted).toLocaleDateString('id-ID') : '-'}</td>
                     <td className="py-4 px-6">
                       <span className={`px-3 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider ${
                         repair.status === 'Selesai' ? 'bg-emerald-500/20 text-emerald-300' :
@@ -341,7 +360,7 @@ export default function Repairs({ repairs, setRepairs, items }: RepairsProps) {
                 ))}
                 {paginatedRepairs.length === 0 && (
                   <tr>
-                    <td colSpan={6} className="py-16 text-center">
+                    <td colSpan={7} className="py-16 text-center">
                       <p className="font-mono font-medium text-slate-500 uppercase tracking-wider text-sm">Tidak ada data perbaikan</p>
                     </td>
                   </tr>
@@ -418,6 +437,17 @@ export default function Repairs({ repairs, setRepairs, items }: RepairsProps) {
                   onChange={e => setFormData({...formData, description: e.target.value})}
                   placeholder="Deskripsikan kerusakan..."
                 ></textarea>
+              </div>
+
+              <div>
+                <label className="block text-xs font-mono font-medium text-slate-400 mb-2 uppercase tracking-wider">Tanggal Mulai Perbaikan</label>
+                <input 
+                  type="date" 
+                  required
+                  className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl font-mono text-sm focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 transition-all text-white placeholder-slate-500"
+                  value={formData.dateStarted} 
+                  onChange={e => setFormData({...formData, dateStarted: e.target.value})}
+                />
               </div>
 
               <div>
