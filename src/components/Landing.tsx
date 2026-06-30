@@ -41,11 +41,23 @@ export default function Landing({ onLoginClick, items, repairs, borrows }: Landi
     );
   }, [repairs, searchRepairs]);
 
+  const currentStats = React.useRef({
+    assets: items.reduce((acc, item) => acc + item.stock, 0),
+    activity: borrows.length + repairs.length,
+  });
+
+  useEffect(() => {
+    currentStats.current = {
+      assets: items.reduce((acc, item) => acc + item.stock, 0),
+      activity: borrows.length + repairs.length,
+    };
+  }, [items, borrows, repairs]);
+
   useEffect(() => {
     const initialData = Array.from({ length: 20 }, (_, i) => ({
       time: i,
-      assets: Math.floor(Math.random() * 50) + 100,
-      activity: Math.floor(Math.random() * 20) + 10,
+      assets: currentStats.current.assets,
+      activity: currentStats.current.activity,
     }));
     setData(initialData);
 
@@ -55,8 +67,8 @@ export default function Landing({ onLoginClick, items, repairs, borrows }: Landi
         const lastTime = newData[newData.length - 1].time;
         newData.push({
           time: lastTime + 1,
-          assets: Math.floor(Math.random() * 50) + 100,
-          activity: Math.floor(Math.random() * 20) + 10,
+          assets: currentStats.current.assets,
+          activity: currentStats.current.activity,
         });
         return newData;
       });
